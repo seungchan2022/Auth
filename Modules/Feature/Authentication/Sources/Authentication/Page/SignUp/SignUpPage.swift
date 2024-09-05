@@ -155,7 +155,7 @@ extension SignUpPage: View {
             }
           }
 
-          Button(action: { }) {
+          Button(action: { store.send(.onTapSignUp) }) {
             Text("회원 가입")
               .foregroundStyle(.white)
               .frame(height: 50)

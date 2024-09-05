@@ -77,7 +77,7 @@ extension SignInPage: View {
             }
           }
 
-          Button(action: { }) {
+          Button(action: { store.send(.onTapSignIn) }) {
             Text("로그인")
               .foregroundStyle(.white)
               .frame(height: 50)

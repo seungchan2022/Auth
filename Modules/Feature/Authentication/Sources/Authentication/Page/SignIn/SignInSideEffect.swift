@@ -24,10 +24,30 @@ struct SignInSideEffect {
 }
 
 extension SignInSideEffect {
+  var signIn: (Authentication.Email.Request) -> Effect<SignInReducer.Action> {
+    { req in
+      .publisher {
+        useCase.authenticationUseCase
+          .signInEmail(req)
+          .map { _ in true }
+          .mapToResult()
+          .map(SignInReducer.Action.fetchSignIn)
+      }
+    }
+  }
+
   var routeToSignUp: () -> Void {
     {
       navigator.next(
         linkItem: .init(path: Link.Authentication.Path.signUp.rawValue),
+        isAnimated: true)
+    }
+  }
+
+  var routeToHome: () -> Void {
+    {
+      navigator.next(
+        linkItem: .init(path: Link.Authentication.Path.home.rawValue),
         isAnimated: true)
     }
   }

@@ -24,6 +24,19 @@ struct SignUpSideEffect {
 }
 
 extension SignUpSideEffect {
+  var signUp: (Authentication.Email.Request) -> Effect<SignUpReducer.Action> {
+    { req in
+      .publisher {
+        useCase.authenticationUseCase
+          .signUpEmail(req)
+          .map { _ in true }
+          .mapToResult()
+          .receive(on: main)
+          .map(SignUpReducer.Action.fetchSignUp)
+      }
+    }
+  }
+
   var routeToSignIn: () -> Void {
     {
       navigator.back(isAnimated: true)

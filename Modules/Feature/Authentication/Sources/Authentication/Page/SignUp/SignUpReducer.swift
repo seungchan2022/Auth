@@ -33,6 +33,8 @@ struct SignUpReducer {
     var isShowPassword = false
     var isShowConfirmPassword = false
 
+    var fetchSignUp: FetchState.Data<Bool> = .init(isLoading: false, value: false)
+
     init(id: UUID = UUID()) {
       self.id = id
     }
@@ -41,6 +43,9 @@ struct SignUpReducer {
   enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case teardown
+
+    case onTapSignUp
+    case fetchSignUp(Result<Bool, CompositeErrorRepository>)
 
     case routeToSignIn
 
@@ -54,7 +59,7 @@ struct SignUpReducer {
 
   var body: some Reducer<State, Action> {
     BindingReducer()
-    Reduce { _, action in
+    Reduce { state, action in
       switch action {
       case .binding:
         return .none
@@ -62,6 +67,24 @@ struct SignUpReducer {
       case .teardown:
         return .concatenate(
           CancelID.allCases.map { .cancel(pageID: pageID, id: $0) })
+
+      case .onTapSignUp:
+        state.fetchSignUp.isLoading = true
+        return sideEffect
+          .signUp(.init(email: state.emailText, password: state.passwordText))
+          .cancellable(pageID: pageID, id: CancelID.requestSignUp, cancelInFlight: true)
+
+      case .fetchSignUp(let result):
+        state.fetchSignUp.isLoading = false
+        switch result {
+        case .success:
+          sideEffect.useCase.toastViewModel.send(message: "회원가입에 성공하였습니다.")
+          sideEffect.routeToSignIn()
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
 
       case .routeToSignIn:
         sideEffect.routeToSignIn()

@@ -9,4 +9,5 @@ import Platform
 
 struct AppSideEffect: DependencyType, AuthenticationEnvironmentUsable {
   let toastViewModel: ToastViewActionType
+  let authenticationUseCase: AuthenticationUseCase
 }
