@@ -66,7 +66,7 @@ let project: Project = .init(
 extension [TargetDependency] {
   public static var `default`: [TargetDependency] {
     [
-      //   .package(product: "Dashboard", type: .runtime),
+      .package(product: "Authentication", type: .runtime),
     ]
   }
 }

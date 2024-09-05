@@ -13,6 +13,6 @@ struct AppMain {
 extension AppMain: View {
 
   var body: some View {
-    Text("aa")
+    Text("Hello")
   }
 }
