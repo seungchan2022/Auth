@@ -1,5 +1,7 @@
-import PackageDescription
+import ProjectDescription
 
 let workspace = Workspace(
-  name: "auth",
-  "Project/**")
+  name: "Auth",
+  projects: [
+    "Project/**",
+  ])
