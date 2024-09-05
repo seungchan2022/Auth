@@ -13,6 +13,9 @@ struct AppMain {
 extension AppMain: View {
 
   var body: some View {
-    Text("aa")
+    LinkNavigationView(
+      linkNavigator: viewModel.linkNavigator,
+      item: .init(path: Link.Authentication.Path.home.rawValue),
+      prefersLargeTitles: true)
   }
 }
