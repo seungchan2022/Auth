@@ -20,6 +20,9 @@ let package = Package(
     .package(
       url: "https://github.com/apple/swift-log.git",
       .upToNextMajor(from: "1.5.3")),
+    .package(
+      url: "https://github.com/firebase/firebase-ios-sdk.git",
+      .upToNextMajor(from: "10.28.1")),
   ],
   targets: [
     .target(
@@ -28,6 +31,8 @@ let package = Package(
         "Domain",
         "CombineExt",
         .product(name: "Logging", package: "swift-log"),
+        .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+        .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
       ],
       resources: [
         .copy("Resources/Mock/dummy.json"),

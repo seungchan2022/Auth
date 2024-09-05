@@ -91,3 +91,4 @@ SourcePackages
 .package.resolved
 
 ### Private ENV
+GoogleService-Info.plist
