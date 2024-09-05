@@ -11,6 +11,8 @@ extension AuthenticationRouteBuilderGroup {
   public static var release: [RouteBuilderOf<RootNavigator>] {
     [
       HomeRouteBuilder.generate(),
+      SignInRouteBuilder.generate(),
+      SignUpRouteBuilder.generate(),
     ]
   }
 }

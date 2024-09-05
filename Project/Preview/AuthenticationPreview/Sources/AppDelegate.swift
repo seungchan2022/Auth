@@ -1,7 +1,7 @@
+import FirebaseCore
 import LinkNavigator
 import Platform
 import UIKit
-import FirebaseCore
 
 @UIApplicationMain
 final class AppDelegate: UIResponder, UIApplicationDelegate {
