@@ -48,6 +48,20 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
       .eraseToAnyPublisher()
     }
   }
+
+  public var signOut: () -> AnyPublisher<Void, CompositeErrorRepository> {
+    {
+      Future<Void, CompositeErrorRepository> { promise in
+        do {
+          try Auth.auth().signOut()
+          return promise(.success(Void()))
+        } catch {
+          return promise(.failure(.other(error)))
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
 }
 
 extension User {

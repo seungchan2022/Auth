@@ -7,4 +7,6 @@ public protocol AuthenticationUseCase {
   var signInEmail: (Authentication.Email.Request) -> AnyPublisher<Void, CompositeErrorRepository> { get }
 
   var me: () -> AnyPublisher<Authentication.Me.Response?, CompositeErrorRepository> { get }
+
+  var signOut: () -> AnyPublisher<Void, CompositeErrorRepository> { get }
 }
