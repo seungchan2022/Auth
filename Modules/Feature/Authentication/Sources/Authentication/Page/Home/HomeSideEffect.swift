@@ -1,4 +1,6 @@
 import Architecture
+import Combine
+import CombineExt
 import ComposableArchitecture
 import Domain
 import Foundation
@@ -21,4 +23,16 @@ struct HomeSideEffect {
   }
 }
 
-extension HomeSideEffect { }
+extension HomeSideEffect {
+  var getUser: () -> Effect<HomeReducer.Action> {
+    {
+      .publisher {
+        useCase.authenticationUseCase
+          .me()
+          .receive(on: main)
+          .mapToResult()
+          .map(HomeReducer.Action.fetchUser)
+      }
+    }
+  }
+}

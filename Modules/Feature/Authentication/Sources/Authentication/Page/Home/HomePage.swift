@@ -13,6 +13,16 @@ extension HomePage { }
 
 extension HomePage: View {
   var body: some View {
-    Text("Home Page")
+    VStack {
+      Text("Home Page")
+
+      Text("\(store.user.uid)")
+      Text("\(store.user.email ?? "")")
+      Text("\(store.user.userName ?? "")")
+      Text("\(store.user.photoURL ?? "")")
+    }
+    .onAppear {
+      store.send(.getUser)
+    }
   }
 }

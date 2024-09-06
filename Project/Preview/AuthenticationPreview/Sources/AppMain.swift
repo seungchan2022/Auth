@@ -1,4 +1,5 @@
 import Architecture
+import FirebaseAuth
 import LinkNavigator
 import SwiftUI
 
@@ -15,7 +16,10 @@ extension AppMain: View {
   var body: some View {
     LinkNavigationView(
       linkNavigator: viewModel.linkNavigator,
-      item: .init(path: Link.Authentication.Path.signIn.rawValue),
+      item: .init(
+        path: Auth.auth().currentUser != .none
+          ? Link.Authentication.Path.home.rawValue
+          : Link.Authentication.Path.signIn.rawValue),
       prefersLargeTitles: true)
   }
 }

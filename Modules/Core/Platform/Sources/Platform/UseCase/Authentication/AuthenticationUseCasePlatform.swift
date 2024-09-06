@@ -37,4 +37,25 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
       .eraseToAnyPublisher()
     }
   }
+
+  public var me: () -> AnyPublisher<Authentication.Me.Response?, CompositeErrorRepository> {
+    {
+      Future<Authentication.Me.Response?, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return promise(.success(.none)) }
+
+        return promise(.success(me.serialized()))
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+}
+
+extension User {
+  fileprivate func serialized() -> Authentication.Me.Response {
+    .init(
+      uid: uid,
+      userName: displayName,
+      email: email,
+      photoURL: photoURL?.absoluteString)
+  }
 }

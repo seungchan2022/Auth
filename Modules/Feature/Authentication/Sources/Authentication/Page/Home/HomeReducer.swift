@@ -22,6 +22,9 @@ struct HomeReducer {
   struct State: Equatable, Identifiable {
     let id: UUID
 
+    var user: Authentication.Me.Response = .init(uid: "", userName: "", email: "", photoURL: "")
+    var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+
     init(id: UUID = UUID()) {
       self.id = id
     }
@@ -31,16 +34,21 @@ struct HomeReducer {
     case binding(BindingAction<State>)
     case teardown
 
+    case getUser
+
+    case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
+
     case throwError(CompositeErrorRepository)
   }
 
   enum CancelID: Equatable, CaseIterable {
     case teardown
+    case requestUser
   }
 
   var body: some Reducer<State, Action> {
     BindingReducer()
-    Reduce { _, action in
+    Reduce { state, action in
       switch action {
       case .binding:
         return .none
@@ -48,6 +56,23 @@ struct HomeReducer {
       case .teardown:
         return .concatenate(
           CancelID.allCases.map { .cancel(pageID: pageID, id: $0) })
+
+      case .getUser:
+        state.fetchUser.isLoading = true
+        return sideEffect
+          .getUser()
+          .cancellable(pageID: pageID, id: CancelID.requestUser, cancelInFlight: true)
+
+      case .fetchUser(let result):
+        state.fetchUser.isLoading = false
+        switch result {
+        case .success(let user):
+          state.user = user ?? .init(uid: "", userName: "", email: "", photoURL: "")
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
 
       case .throwError(let error):
         sideEffect.useCase.toastViewModel.send(errorMessage: error.displayMessage)
