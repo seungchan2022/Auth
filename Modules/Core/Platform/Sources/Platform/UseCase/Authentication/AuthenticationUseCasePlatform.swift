@@ -62,6 +62,25 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
       .eraseToAnyPublisher()
     }
   }
+
+  public var updateUserName: (String) -> AnyPublisher<Void, CompositeErrorRepository> {
+    { newName in
+      Future<Void, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return promise(.success(Void())) }
+
+        let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
+        changeRequest?.displayName = newName
+        changeRequest?.commitChanges { error in
+          guard let error else {
+            return promise(.success(Void()))
+          }
+
+          return promise(.failure(.other(error)))
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
 }
 
 extension User {

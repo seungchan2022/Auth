@@ -43,6 +43,7 @@ struct UpdateAuthReducer {
 
     var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
     var fetchSignOut: FetchState.Data<Bool> = .init(isLoading: false, value: false)
+    var fetchUpdateUserName: FetchState.Data<Bool> = .init(isLoading: false, value: false)
 
   }
 
@@ -53,9 +54,11 @@ struct UpdateAuthReducer {
     case getUser
 
     case onTapSignOut
+    case onTapUpdateUserName
 
     case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
     case fetchSignOut(Result<Bool, CompositeErrorRepository>)
+    case fetchUpdateUserName(Result<Bool, CompositeErrorRepository>)
 
     case routeToBack
 
@@ -66,6 +69,7 @@ struct UpdateAuthReducer {
     case teardown
     case requestUser
     case requestSignOut
+    case requestUpdateUserName
   }
 
   var body: some Reducer<State, Action> {
@@ -91,6 +95,11 @@ struct UpdateAuthReducer {
           .signOut()
           .cancellable(pageID: pageID, id: CancelID.requestSignOut, cancelInFlight: true)
 
+      case .onTapUpdateUserName:
+        return sideEffect
+          .updateUserName(state.updateUserName)
+          .cancellable(pageID: pageID, id: CancelID.requestUpdateUserName, cancelInFlight: true)
+
       case .fetchUser(let result):
         state.fetchUser.isLoading = false
         switch result {
@@ -108,6 +117,16 @@ struct UpdateAuthReducer {
         case .success:
           sideEffect.routeToSignIn()
           return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchUpdateUserName(let result):
+        state.fetchUpdateUserName.isLoading = false
+        switch result {
+        case .success:
+          return .run { await $0(.getUser) }
 
         case .failure(let error):
           return .run { await $0(.throwError(error)) }

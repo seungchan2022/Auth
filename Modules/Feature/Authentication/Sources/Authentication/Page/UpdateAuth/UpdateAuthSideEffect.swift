@@ -45,6 +45,19 @@ extension UpdateAuthSideEffect {
     }
   }
 
+  var updateUserName: (String) -> Effect<UpdateAuthReducer.Action> {
+    { newName in
+      .publisher {
+        useCase.authenticationUseCase
+          .updateUserName(newName)
+          .map { _ in true }
+          .receive(on: main)
+          .mapToResult()
+          .map(UpdateAuthReducer.Action.fetchUpdateUserName)
+      }
+    }
+  }
+
   var routeToSignIn: () -> Void {
     {
       navigator.replace(

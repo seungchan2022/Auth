@@ -102,7 +102,7 @@ extension UpdateAuthPage: View {
         .autocorrectionDisabled(true)
         .textInputAutocapitalization(.never)
 
-      Button(action: { }) {
+      Button(action: { store.send(.onTapUpdateUserName) }) {
         Text("확인")
       }
 
