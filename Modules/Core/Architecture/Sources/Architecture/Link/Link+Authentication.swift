@@ -14,5 +14,6 @@ extension Link.Authentication {
     case signIn
     case signUp
     case updateAuth
+    case updatePassword
   }
 }

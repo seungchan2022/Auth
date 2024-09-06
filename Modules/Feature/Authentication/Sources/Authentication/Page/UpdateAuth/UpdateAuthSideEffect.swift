@@ -66,6 +66,15 @@ extension UpdateAuthSideEffect {
     }
   }
 
+  var routeToUpdatePassword: () -> Void {
+    {
+      navigator.fullSheet(
+        linkItem: .init(path: Link.Authentication.Path.updatePassword.rawValue),
+        isAnimated: true,
+        prefersLargeTitles: false)
+    }
+  }
+
   var routeToBack: () -> Void {
     {
       navigator.back(isAnimated: true)

@@ -60,6 +60,7 @@ struct UpdateAuthReducer {
     case fetchSignOut(Result<Bool, CompositeErrorRepository>)
     case fetchUpdateUserName(Result<Bool, CompositeErrorRepository>)
 
+    case routeToUpdatePassword
     case routeToBack
 
     case throwError(CompositeErrorRepository)
@@ -131,6 +132,10 @@ struct UpdateAuthReducer {
         case .failure(let error):
           return .run { await $0(.throwError(error)) }
         }
+
+      case .routeToUpdatePassword:
+        sideEffect.routeToUpdatePassword()
+        return .none
 
       case .routeToBack:
         sideEffect.routeToBack()

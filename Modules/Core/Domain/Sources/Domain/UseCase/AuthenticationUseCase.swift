@@ -11,5 +11,6 @@ public protocol AuthenticationUseCase {
   var signOut: () -> AnyPublisher<Void, CompositeErrorRepository> { get }
 
   var updateUserName: (String) -> AnyPublisher<Void, CompositeErrorRepository> { get }
+  var updatePassword: (String, String) -> AnyPublisher<Void, CompositeErrorRepository> { get }
 
 }

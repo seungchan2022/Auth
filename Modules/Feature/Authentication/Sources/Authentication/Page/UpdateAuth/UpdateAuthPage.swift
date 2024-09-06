@@ -74,7 +74,7 @@ extension UpdateAuthPage: View {
 
             Spacer()
 
-            Button(action: { }) {
+            Button(action: { store.send(.routeToUpdatePassword) }) {
               Text("변경")
             }
           }

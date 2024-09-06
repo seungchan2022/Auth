@@ -14,6 +14,7 @@ extension AuthenticationRouteBuilderGroup {
       SignInRouteBuilder.generate(),
       SignUpRouteBuilder.generate(),
       UpdateAuthRouteBuilder.generate(),
+      UpdatePasswordRouteBuilder.generate(),
     ]
   }
 }
