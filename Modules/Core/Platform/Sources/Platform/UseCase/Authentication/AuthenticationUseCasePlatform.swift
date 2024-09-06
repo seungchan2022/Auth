@@ -104,6 +104,29 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
       .eraseToAnyPublisher()
     }
   }
+
+  public var deleteUser: (String) -> AnyPublisher<Void, CompositeErrorRepository> {
+    { currPassword in
+      Future<Void, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return promise(.success(Void())) }
+
+        let credential = EmailAuthProvider.credential(withEmail: me.email ?? "", password: currPassword)
+
+        me.reauthenticate(with: credential) { _, error in
+          if error != nil {
+            return promise(.failure(.currPasswordError))
+          } else {
+            me.delete { error in
+              guard let error else { return promise(.success(Void())) }
+
+              return promise(.failure(.other(error)))
+            }
+          }
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
 }
 
 extension User {

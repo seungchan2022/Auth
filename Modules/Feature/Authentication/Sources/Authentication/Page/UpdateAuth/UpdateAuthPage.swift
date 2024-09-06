@@ -130,11 +130,11 @@ extension UpdateAuthPage: View {
       "계정을 탈퇴하시겟습니까?",
       isPresented: $store.isShowDeleteUserAlert)
     {
-      TextField("비밀번호", text: $store.passwordText)
+      SecureField("비밀번호", text: $store.passwordText)
         .autocorrectionDisabled(true)
         .textInputAutocapitalization(.never)
 
-      Button(action: { }) {
+      Button(action: { store.send(.onTapDeleteUser) }) {
         Text("확인")
       }
 
@@ -142,7 +142,7 @@ extension UpdateAuthPage: View {
         Text("취소")
       }
     } message: {
-      Text("계정을 탈퇴 하려면 확인 버튼을 눌러주세요.")
+      Text("계정을 탈퇴 하려면 현재 비밀번호를 입력하고, 확인 버튼을 눌러주세요.")
     }
     .toolbar(.hidden, for: .navigationBar)
     .onAppear {

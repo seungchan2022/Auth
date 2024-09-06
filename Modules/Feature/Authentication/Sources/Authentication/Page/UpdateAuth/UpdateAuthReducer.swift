@@ -44,6 +44,7 @@ struct UpdateAuthReducer {
     var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
     var fetchSignOut: FetchState.Data<Bool> = .init(isLoading: false, value: false)
     var fetchUpdateUserName: FetchState.Data<Bool> = .init(isLoading: false, value: false)
+    var fetchDeleteUser: FetchState.Data<Bool> = .init(isLoading: false, value: false)
 
   }
 
@@ -55,10 +56,12 @@ struct UpdateAuthReducer {
 
     case onTapSignOut
     case onTapUpdateUserName
+    case onTapDeleteUser
 
     case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
     case fetchSignOut(Result<Bool, CompositeErrorRepository>)
     case fetchUpdateUserName(Result<Bool, CompositeErrorRepository>)
+    case fetchDeleteUser(Result<Bool, CompositeErrorRepository>)
 
     case routeToUpdatePassword
     case routeToBack
@@ -71,6 +74,7 @@ struct UpdateAuthReducer {
     case requestUser
     case requestSignOut
     case requestUpdateUserName
+    case requestDeleteUser
   }
 
   var body: some Reducer<State, Action> {
@@ -101,6 +105,11 @@ struct UpdateAuthReducer {
           .updateUserName(state.updateUserName)
           .cancellable(pageID: pageID, id: CancelID.requestUpdateUserName, cancelInFlight: true)
 
+      case .onTapDeleteUser:
+        return sideEffect
+          .deleteUser(state.passwordText)
+          .cancellable(pageID: pageID, id: CancelID.requestDeleteUser, cancelInFlight: true)
+
       case .fetchUser(let result):
         state.fetchUser.isLoading = false
         switch result {
@@ -128,6 +137,18 @@ struct UpdateAuthReducer {
         switch result {
         case .success:
           return .run { await $0(.getUser) }
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchDeleteUser(let result):
+        state.fetchDeleteUser.isLoading = false
+        switch result {
+        case .success:
+          sideEffect.useCase.toastViewModel.send(message: "계정이 탈퇴되었습니다.")
+          sideEffect.routeToSignIn()
+          return .none
 
         case .failure(let error):
           return .run { await $0(.throwError(error)) }
