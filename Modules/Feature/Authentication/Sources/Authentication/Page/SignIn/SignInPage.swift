@@ -126,7 +126,7 @@ extension SignInPage: View {
           Text("취소")
         }
 
-        Button(action: { }) {
+        Button(action: { store.send(.onTapResetPassword) }) {
           Text("확인")
         }
       },

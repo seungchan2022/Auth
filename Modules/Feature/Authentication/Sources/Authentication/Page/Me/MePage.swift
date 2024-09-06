@@ -44,6 +44,7 @@ extension MePage: View {
 
                   Text("이름: \(userName)")
                 }
+                .lineLimit(1)
 
                 Spacer()
 
