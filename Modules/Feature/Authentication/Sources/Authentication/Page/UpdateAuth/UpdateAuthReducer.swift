@@ -4,13 +4,13 @@ import Domain
 import Foundation
 
 @Reducer
-struct MeReducer {
+struct UpdateAuthReducer {
 
   // MARK: Lifecycle
 
   init(
     pageID: String = UUID().uuidString,
-    sideEffect: MeSideEffect)
+    sideEffect: UpdateAuthSideEffect)
   {
     self.pageID = pageID
     self.sideEffect = sideEffect
@@ -20,25 +20,44 @@ struct MeReducer {
 
   @ObservableState
   struct State: Equatable, Identifiable {
-    let id: UUID
 
-    var user: Authentication.Me.Response = .init(uid: "", userName: "", email: "", photoURL: "")
-    var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+    // MARK: Lifecycle
 
     init(id: UUID = UUID()) {
       self.id = id
     }
+
+    // MARK: Internal
+
+    let id: UUID
+
+    var isShowUpdateUserNameAlert = false
+    var isShowSignOutAlert = false
+    var isShowDeleteUserAlert = false
+
+    var updateUserName = ""
+
+    var passwordText = ""
+
+    var user: Authentication.Me.Response = .init(uid: "", userName: "", email: "", photoURL: "")
+
+    var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+    var fetchSignOut: FetchState.Data<Bool> = .init(isLoading: false, value: false)
+
   }
 
-  enum Action: Equatable, BindableAction {
+  enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case teardown
 
     case getUser
 
-    case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
+    case onTapSignOut
 
-    case routeToUpdateAuth
+    case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
+    case fetchSignOut(Result<Bool, CompositeErrorRepository>)
+
+    case routeToBack
 
     case throwError(CompositeErrorRepository)
   }
@@ -63,8 +82,14 @@ struct MeReducer {
       case .getUser:
         state.fetchUser.isLoading = true
         return sideEffect
-          .getUser()
+          .user()
           .cancellable(pageID: pageID, id: CancelID.requestUser, cancelInFlight: true)
+
+      case .onTapSignOut:
+        state.fetchSignOut.isLoading = true
+        return sideEffect
+          .signOut()
+          .cancellable(pageID: pageID, id: CancelID.requestSignOut, cancelInFlight: true)
 
       case .fetchUser(let result):
         state.fetchUser.isLoading = false
@@ -77,8 +102,19 @@ struct MeReducer {
           return .run { await $0(.throwError(error)) }
         }
 
-      case .routeToUpdateAuth:
-        sideEffect.routeToAuth()
+      case .fetchSignOut(let result):
+        state.fetchSignOut.isLoading = false
+        switch result {
+        case .success:
+          sideEffect.routeToSignIn()
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .routeToBack:
+        sideEffect.routeToBack()
         return .none
 
       case .throwError(let error):
@@ -91,6 +127,5 @@ struct MeReducer {
   // MARK: Private
 
   private let pageID: String
-  private let sideEffect: MeSideEffect
-
+  private let sideEffect: UpdateAuthSideEffect
 }

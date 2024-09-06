@@ -13,5 +13,6 @@ extension Link.Authentication {
     case me
     case signIn
     case signUp
+    case updateAuth
   }
 }

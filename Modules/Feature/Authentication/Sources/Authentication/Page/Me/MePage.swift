@@ -62,7 +62,7 @@ extension MePage: View {
           .onTapGesture { }
 
           VStack(spacing: 32) {
-            Button(action: {  }) {
+            Button(action: { store.send(.routeToUpdateAuth) }) {
               VStack {
                 HStack {
                   Image(systemName: "lock.square")

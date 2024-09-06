@@ -35,4 +35,12 @@ extension MeSideEffect {
       }
     }
   }
+
+  var routeToAuth: () -> Void {
+    {
+      navigator.next(
+        linkItem: .init(path: Link.Authentication.Path.updateAuth.rawValue),
+        isAnimated: true)
+    }
+  }
 }

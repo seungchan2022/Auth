@@ -13,6 +13,7 @@ extension AuthenticationRouteBuilderGroup {
       MeRouteBuilder.generate(),
       SignInRouteBuilder.generate(),
       SignUpRouteBuilder.generate(),
+      UpdateAuthRouteBuilder.generate(),
     ]
   }
 }
