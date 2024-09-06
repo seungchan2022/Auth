@@ -5,9 +5,9 @@ import ComposableArchitecture
 import Domain
 import Foundation
 
-// MARK: - HomeSideEffect
+// MARK: - MeSideEffect
 
-struct HomeSideEffect {
+struct MeSideEffect {
   let useCase: AuthenticationEnvironmentUsable
   let main: AnySchedulerOf<DispatchQueue>
   let navigator: RootNavigatorType
@@ -23,15 +23,15 @@ struct HomeSideEffect {
   }
 }
 
-extension HomeSideEffect {
-  var getUser: () -> Effect<HomeReducer.Action> {
+extension MeSideEffect {
+  var getUser: () -> Effect<MeReducer.Action> {
     {
       .publisher {
         useCase.authenticationUseCase
           .me()
           .receive(on: main)
           .mapToResult()
-          .map(HomeReducer.Action.fetchUser)
+          .map(MeReducer.Action.fetchUser)
       }
     }
   }

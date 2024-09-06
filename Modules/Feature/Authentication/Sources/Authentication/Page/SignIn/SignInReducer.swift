@@ -47,7 +47,7 @@ struct SignInReducer {
 
     case routeToSignUp
 
-    case routeToHome
+    case routeToMe
 
     case throwError(CompositeErrorRepository)
   }
@@ -79,7 +79,7 @@ struct SignInReducer {
         switch result {
         case .success:
 
-          sideEffect.routeToHome()
+          sideEffect.routeToMe()
           return .none
 
         case .failure:
@@ -91,8 +91,8 @@ struct SignInReducer {
         sideEffect.routeToSignUp()
         return .none
 
-      case .routeToHome:
-        sideEffect.routeToHome()
+      case .routeToMe:
+        sideEffect.routeToMe()
         return .none
 
       case .throwError(let error):

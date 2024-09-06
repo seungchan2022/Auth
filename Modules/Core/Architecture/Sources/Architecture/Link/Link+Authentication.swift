@@ -10,7 +10,7 @@ extension Link {
 
 extension Link.Authentication {
   public enum Path: String, Equatable {
-    case home
+    case me
     case signIn
     case signUp
   }

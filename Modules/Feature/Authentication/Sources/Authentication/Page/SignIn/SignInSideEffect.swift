@@ -44,10 +44,10 @@ extension SignInSideEffect {
     }
   }
 
-  var routeToHome: () -> Void {
+  var routeToMe: () -> Void {
     {
       navigator.next(
-        linkItem: .init(path: Link.Authentication.Path.home.rawValue),
+        linkItem: .init(path: Link.Authentication.Path.me.rawValue),
         isAnimated: true)
     }
   }

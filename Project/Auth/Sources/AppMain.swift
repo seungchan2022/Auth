@@ -18,7 +18,7 @@ extension AppMain: View {
       linkNavigator: viewModel.linkNavigator,
       item: .init(
         path: Auth.auth().currentUser != .none
-          ? Link.Authentication.Path.home.rawValue
+          ? Link.Authentication.Path.me.rawValue
           : Link.Authentication.Path.signIn.rawValue))
       .ignoresSafeArea()
   }

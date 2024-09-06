@@ -4,13 +4,13 @@ import Domain
 import Foundation
 
 @Reducer
-struct HomeReducer {
+struct MeReducer {
 
   // MARK: Lifecycle
 
   init(
     pageID: String = UUID().uuidString,
-    sideEffect: HomeSideEffect)
+    sideEffect: MeSideEffect)
   {
     self.pageID = pageID
     self.sideEffect = sideEffect
@@ -44,6 +44,7 @@ struct HomeReducer {
   enum CancelID: Equatable, CaseIterable {
     case teardown
     case requestUser
+    case requestSignOut
   }
 
   var body: some Reducer<State, Action> {
@@ -84,6 +85,6 @@ struct HomeReducer {
   // MARK: Private
 
   private let pageID: String
-  private let sideEffect: HomeSideEffect
+  private let sideEffect: MeSideEffect
 
 }

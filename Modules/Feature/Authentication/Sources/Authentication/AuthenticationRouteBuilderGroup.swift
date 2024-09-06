@@ -10,7 +10,7 @@ public struct AuthenticationRouteBuilderGroup<RootNavigator: RootNavigatorType> 
 extension AuthenticationRouteBuilderGroup {
   public static var release: [RouteBuilderOf<RootNavigator>] {
     [
-      HomeRouteBuilder.generate(),
+      MeRouteBuilder.generate(),
       SignInRouteBuilder.generate(),
       SignUpRouteBuilder.generate(),
     ]

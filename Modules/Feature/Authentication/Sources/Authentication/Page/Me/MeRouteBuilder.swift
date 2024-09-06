@@ -1,19 +1,19 @@
 import Architecture
 import LinkNavigator
 
-struct HomeRouteBuilder<RootNavigator: RootNavigatorType> {
+struct MeRouteBuilder<RootNavigator: RootNavigatorType> {
   static func generate() -> RouteBuilderOf<RootNavigator> {
-    let matchPath = Link.Authentication.Path.home.rawValue
+    let matchPath = Link.Authentication.Path.me.rawValue
 
     return .init(matchPath: matchPath) { navigator, _, diContainer -> RouteViewController? in
       guard let env: AuthenticationEnvironmentUsable = diContainer.resolve() else { return .none }
 
       return DebugWrappingController(matchPath: matchPath) {
-        HomePage(
+        MePage(
           store: .init(
-            initialState: HomeReducer.State(),
+            initialState: MeReducer.State(),
             reducer: {
-              HomeReducer(
+              MeReducer(
                 sideEffect: .init(
                   useCase: env,
                   navigator: navigator))
