@@ -29,9 +29,15 @@ extension InfoPlist {
   public static var extraInfoPlist: [String: Plist.Value] {
     [
       "UILaunchScreen": .dictionary([:]),
-//      "com.apple.developer.applesignin": .array([
-//        .string("Default")
-//      ]),
+      "CFBundleURLTypes": .array([
+        .dictionary([
+          "CFBundleTypeRole": .string("Editor"),
+          "CFBundleURLSchemes": .array([
+            .string("com.googleusercontent.apps.299664057012-m93hc46hft1m50dir5168ospl50jvg30"),
+          ]),
+        ]),
+
+      ]),
     ]
   }
 }
