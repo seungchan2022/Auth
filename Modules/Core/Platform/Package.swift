@@ -22,7 +22,10 @@ let package = Package(
       .upToNextMajor(from: "1.5.3")),
     .package(
       url: "https://github.com/firebase/firebase-ios-sdk.git",
-      .upToNextMajor(from: "10.28.1")),
+      .upToNextMajor(from: "11.1.0")),
+    .package(
+      url: "https://github.com/google/GoogleSignIn-iOS",
+      .upToNextMajor(from: "8.0.0")),
   ],
   targets: [
     .target(
@@ -33,6 +36,8 @@ let package = Package(
         .product(name: "Logging", package: "swift-log"),
         .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
         .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
+        .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
+        .product(name: "GoogleSignInSwift", package: "GoogleSignIn-iOS"),
       ],
       resources: [
         .copy("Resources/Mock/dummy.json"),
