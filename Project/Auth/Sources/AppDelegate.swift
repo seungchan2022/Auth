@@ -7,13 +7,18 @@ import UIKit
 final class AppDelegate: UIResponder, UIApplicationDelegate {
 
   let container: AppContainer = .build()
+  let thirdPartyContainer: ThirdPartyContainer = .init()
 
   var dependency: AppSideEffect { container.dependency }
   var navigator: SingleLinkNavigator { container.navigator }
 
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-    FirebaseApp.configure()
+    thirdPartyContainer.connect()
     return true
+  }
+
+  func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    thirdPartyContainer.perform(url: url)
   }
 
   func application(
