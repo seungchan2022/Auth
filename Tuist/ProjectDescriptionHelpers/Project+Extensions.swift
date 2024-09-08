@@ -29,6 +29,9 @@ extension InfoPlist {
   public static var extraInfoPlist: [String: Plist.Value] {
     [
       "UILaunchScreen": .dictionary([:]),
+//      "com.apple.developer.applesignin": .array([
+//        .string("Default")
+//      ]),
     ]
   }
 }

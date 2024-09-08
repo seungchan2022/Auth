@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Combine
 import Domain
 import Firebase
@@ -33,6 +34,15 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
 
           return promise(.failure(.other(error)))
         }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
+  public var signInApple: (Authentication.Apple.Request) -> AnyPublisher<Void, CompositeErrorRepository> {
+    { _ in
+      Future<Void, CompositeErrorRepository> { _ in
+        
       }
       .eraseToAnyPublisher()
     }
@@ -151,5 +161,38 @@ extension User {
       userName: displayName,
       email: email,
       photoURL: photoURL?.absoluteString)
+  }
+}
+
+// MARK: - SignInWithAppleDelegate
+
+final class SignInWithAppleDelegate: NSObject, ASAuthorizationControllerDelegate {
+
+  // MARK: Lifecycle
+
+  init(completion: @escaping (Result<ASAuthorizationAppleIDCredential, Error>) -> Void) {
+    self.completion = completion
+  }
+
+  // MARK: Internal
+
+  var completion: (Result<ASAuthorizationAppleIDCredential, Error>) -> Void
+
+  func authorizationController(
+    controller _: ASAuthorizationController,
+    didCompleteWithAuthorization authorization: ASAuthorization)
+  {
+    if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
+      completion(.success(credential))
+    } else {
+      completion(.failure(NSError(
+        domain: "AuthError",
+        code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to authorize"])))
+    }
+  }
+
+  func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
+    completion(.failure(error))
   }
 }
