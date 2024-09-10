@@ -3,6 +3,7 @@ import ComposableArchitecture
 import CryptoKit
 import DesignSystem
 import FirebaseAuth
+import GoogleSignInSwift
 import SwiftUI
 
 // MARK: - Focus
@@ -215,6 +216,15 @@ extension SignInPage: View {
             .frame(height: 50)
             .padding(.horizontal, 16)
             .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+
+          GoogleSignInButton(
+            viewModel: .init(
+              scheme: .dark,
+              style: .wide,
+              state: .normal))
+          {
+            store.send(.onTapGoogleSignIn)
+          }
         }
         .padding(16)
       }

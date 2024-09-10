@@ -3,6 +3,7 @@ import Combine
 import Domain
 import Firebase
 import FirebaseAuth
+import GoogleSignIn
 
 // MARK: - AuthenticationUseCasePlatform
 
@@ -42,7 +43,44 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
   public var signInApple: (Authentication.Apple.Request) -> AnyPublisher<Void, CompositeErrorRepository> {
     { _ in
       Future<Void, CompositeErrorRepository> { _ in
-        
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
+  public var signInGoogle: () -> AnyPublisher<Void, CompositeErrorRepository> {
+    {
+      Future<Void, CompositeErrorRepository> { promise in
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+
+        guard let rootViewController = UIApplication.shared.firstKeyWindow?.rootViewController else { return }
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
+
+          if let error = error {
+            return promise(.failure(.other(error)))
+          }
+
+          guard
+            let user = result?.user,
+            let idToken = user.idToken?.tokenString
+          else { return }
+
+          let credential = GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: user.accessToken.tokenString)
+
+          Auth.auth().signIn(with: credential) { _, error in
+            if let error = error {
+              return promise(.failure(.other(error)))
+            }
+
+            return promise(.success(Void()))
+          }
+        }
       }
       .eraseToAnyPublisher()
     }
@@ -164,35 +202,12 @@ extension User {
   }
 }
 
-// MARK: - SignInWithAppleDelegate
-
-final class SignInWithAppleDelegate: NSObject, ASAuthorizationControllerDelegate {
-
-  // MARK: Lifecycle
-
-  init(completion: @escaping (Result<ASAuthorizationAppleIDCredential, Error>) -> Void) {
-    self.completion = completion
-  }
-
-  // MARK: Internal
-
-  var completion: (Result<ASAuthorizationAppleIDCredential, Error>) -> Void
-
-  func authorizationController(
-    controller _: ASAuthorizationController,
-    didCompleteWithAuthorization authorization: ASAuthorization)
-  {
-    if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
-      completion(.success(credential))
-    } else {
-      completion(.failure(NSError(
-        domain: "AuthError",
-        code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to authorize"])))
-    }
-  }
-
-  func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
-    completion(.failure(error))
+extension UIApplication {
+  fileprivate var firstKeyWindow: UIWindow? {
+    UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .filter { $0.activationState == .foregroundActive }
+      .first?.windows
+      .first(where: \.isKeyWindow)
   }
 }

@@ -30,6 +30,7 @@ extension SignInSideEffect {
         useCase.authenticationUseCase
           .signInEmail(req)
           .map { _ in true }
+          .receive(on: main)
           .mapToResult()
           .map(SignInReducer.Action.fetchSignIn)
       }
@@ -45,6 +46,19 @@ extension SignInSideEffect {
           .receive(on: main)
           .mapToResult()
           .map(SignInReducer.Action.fetchResetPassword)
+      }
+    }
+  }
+
+  var googleSignIn: () -> Effect<SignInReducer.Action> {
+    {
+      .publisher {
+        useCase.authenticationUseCase
+          .signInGoogle()
+          .map { _ in true }
+          .receive(on: main)
+          .mapToResult()
+          .map(SignInReducer.Action.fetchGoogleSignIn)
       }
     }
   }

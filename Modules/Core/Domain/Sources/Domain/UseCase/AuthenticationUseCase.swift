@@ -8,6 +8,8 @@ public protocol AuthenticationUseCase {
 
   var signInApple: (Authentication.Apple.Request) -> AnyPublisher<Void, CompositeErrorRepository> { get }
 
+  var signInGoogle: () -> AnyPublisher<Void, CompositeErrorRepository> { get }
+
   var me: () -> AnyPublisher<Authentication.Me.Response?, CompositeErrorRepository> { get }
 
   var signOut: () -> AnyPublisher<Void, CompositeErrorRepository> { get }

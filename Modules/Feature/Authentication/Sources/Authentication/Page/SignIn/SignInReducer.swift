@@ -33,6 +33,7 @@ struct SignInReducer {
 
     var fetchSignIn: FetchState.Data<Bool> = .init(isLoading: false, value: false)
     var fetchResetPassword: FetchState.Data<Bool> = .init(isLoading: false, value: false)
+    var fetchGoogleSignIn: FetchState.Data<Bool> = .init(isLoading: false, value: false)
 
     init(id: UUID = UUID()) {
       self.id = id
@@ -45,9 +46,11 @@ struct SignInReducer {
 
     case onTapSignIn
     case onTapResetPassword
+    case onTapGoogleSignIn
 
     case fetchSignIn(Result<Bool, CompositeErrorRepository>)
     case fetchResetPassword(Result<Bool, CompositeErrorRepository>)
+    case fetchGoogleSignIn(Result<Bool, CompositeErrorRepository>)
 
     case routeToSignUp
 
@@ -60,6 +63,7 @@ struct SignInReducer {
     case teardown
     case requestSignIn
     case requestResetPassword
+    case requestGoogleSignIn
   }
 
   var body: some Reducer<State, Action> {
@@ -85,6 +89,12 @@ struct SignInReducer {
           .resetPassword(state.resetEmailText)
           .cancellable(pageID: pageID, id: CancelID.requestResetPassword, cancelInFlight: true)
 
+      case .onTapGoogleSignIn:
+        state.fetchGoogleSignIn.isLoading = true
+        return sideEffect
+          .googleSignIn()
+          .cancellable(pageID: pageID, id: CancelID.requestGoogleSignIn, cancelInFlight: true)
+
       case .fetchSignIn(let result):
         state.fetchSignIn.isLoading = false
         switch result {
@@ -102,6 +112,17 @@ struct SignInReducer {
         switch result {
         case .success:
           sideEffect.useCase.toastViewModel.send(message: "입력하신 이메일 주소로 비밀번호 재설정 링크가 전송되었습니다.")
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchGoogleSignIn(let result):
+        state.fetchGoogleSignIn.isLoading = false
+        switch result {
+        case .success:
+          sideEffect.routeToMe()
           return .none
 
         case .failure(let error):
