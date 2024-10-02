@@ -19,7 +19,7 @@ extension AppMain: View {
       item: .init(
         path: Auth.auth().currentUser != .none
           ? Link.Authentication.Path.me.rawValue
-          : Link.Authentication.Path.signIn.rawValue),
+          : Link.Authentication.Path.landing.rawValue),
       prefersLargeTitles: true)
   }
 }

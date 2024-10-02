@@ -74,7 +74,10 @@ extension UpdateAuthSideEffect {
   var routeToSignIn: () -> Void {
     {
       navigator.replace(
-        linkItem: .init(path: Link.Authentication.Path.signIn.rawValue),
+        linkItem: .init(pathList: [
+          Link.Authentication.Path.landing.rawValue,
+          Link.Authentication.Path.signIn.rawValue
+        ]),
         isAnimated: false)
     }
   }

@@ -52,6 +52,7 @@ struct SignInReducer {
     case fetchResetPassword(Result<Bool, CompositeErrorRepository>)
     case fetchGoogleSignIn(Result<Bool, CompositeErrorRepository>)
 
+    case routeToBack
     case routeToSignUp
 
     case routeToMe
@@ -128,6 +129,10 @@ struct SignInReducer {
         case .failure(let error):
           return .run { await $0(.throwError(error)) }
         }
+
+      case .routeToBack:
+        sideEffect.routeToBack()
+        return .none
 
       case .routeToSignUp:
         sideEffect.routeToSignUp()

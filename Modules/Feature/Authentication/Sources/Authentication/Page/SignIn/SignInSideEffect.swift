@@ -63,6 +63,12 @@ extension SignInSideEffect {
     }
   }
 
+  var routeToBack: () -> Void {
+    {
+      navigator.back(isAnimated: true)
+    }
+  }
+
   var routeToSignUp: () -> Void {
     {
       navigator.next(

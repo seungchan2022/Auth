@@ -2,6 +2,7 @@ import AuthenticationServices
 import ComposableArchitecture
 import CryptoKit
 import DesignSystem
+import Domain
 import FirebaseAuth
 import GoogleSignInSwift
 import SwiftUI
@@ -83,7 +84,9 @@ extension SignInPage: View {
   var body: some View {
     VStack {
       DesignSystemNavigation(
-        barItem: .init(title: "로그인"),
+        barItem: .init(
+          backAction: .init(image: Image(systemName: "chevron.left"), action: { store.send(.routeToBack) }),
+          title: "로그인"),
         isShowDivider: true)
       {
         VStack(spacing: 32) {
@@ -170,7 +173,6 @@ extension SignInPage: View {
               currentNonce = nonce
               request.requestedScopes = [.fullName, .email]
               request.nonce = sha256(nonce)
-//              startSignInWithAppleFlow()
             },
             onCompletion: { result in
               switch result {
@@ -196,6 +198,7 @@ extension SignInPage: View {
                     withIDToken: idTokenString,
                     rawNonce: nonce,
                     fullName: appleIDCredential.fullName)
+
                   // Sign in with Firebase.
                   Auth.auth().signIn(with: credential) { _, error in
                     if let error = error {
@@ -203,8 +206,7 @@ extension SignInPage: View {
                       print(error.localizedDescription)
                       return
                     }
-                    // 성공적으로 Firebase에 로그인되었을 경우 처리
-                    print("Success signed")
+
                     store.send(.routeToMe)
                   }
                 }
@@ -221,10 +223,8 @@ extension SignInPage: View {
             viewModel: .init(
               scheme: .dark,
               style: .wide,
-              state: .normal))
-          {
-            store.send(.onTapGoogleSignIn)
-          }
+              state: .normal),
+            action: { store.send(.onTapGoogleSignIn) })
         }
         .padding(16)
       }
