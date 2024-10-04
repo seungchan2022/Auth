@@ -18,8 +18,8 @@ extension AppMain: View {
       linkNavigator: viewModel.linkNavigator,
       item: .init(
         path: Auth.auth().currentUser != .none
-          ? Link.Authentication.Path.me.rawValue
-          : Link.Authentication.Path.landing.rawValue))
-      .ignoresSafeArea()
+        ? Link.Dashboard.Path.home.rawValue
+        : Link.Authentication.Path.landing.rawValue))
+    .ignoresSafeArea()
   }
 }
