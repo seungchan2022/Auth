@@ -49,6 +49,8 @@ extension DesignSystemNavigationBar: View {
             }
             if let image = backAction.image {
               image
+                .resizable()
+                .frame(width: 25, height: 25)
                 .foregroundStyle(.black)
                 .background {
                   Circle()
@@ -84,8 +86,14 @@ extension DesignSystemNavigationBar: View {
               }
               if let image = item.image {
                 image
-                  .foregroundStyle(tintColor)
-                  .frame(minWidth: 40)
+                  .resizable()
+                  .frame(width: 25, height: 25)
+                  .foregroundStyle(.black)
+                  .background {
+                    Circle()
+                      .fill(.clear)
+                      .frame(width: 50, height: 50)
+                  }
               }
             }
           }
