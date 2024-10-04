@@ -36,6 +36,12 @@ extension MeSideEffect {
     }
   }
 
+  var routeToBack: () -> Void {
+    {
+      navigator.back(isAnimated: true)
+    }
+  }
+
   var routeToAuth: () -> Void {
     {
       navigator.next(

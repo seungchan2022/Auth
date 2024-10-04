@@ -21,6 +21,7 @@ extension AuthenticationRouteBuilderGroup {
 
   public static var templates: [RouteBuilderOf<RootNavigator>] {
     [
+      HomeRouteBuiilder.generate(),
     ]
   }
 }

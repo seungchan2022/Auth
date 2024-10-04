@@ -55,7 +55,7 @@ struct SignInReducer {
     case routeToBack
     case routeToSignUp
 
-    case routeToMe
+    case routeToHome
 
     case throwError(CompositeErrorRepository)
   }
@@ -100,7 +100,7 @@ struct SignInReducer {
         state.fetchSignIn.isLoading = false
         switch result {
         case .success:
-          sideEffect.routeToMe()
+          sideEffect.routeToHome()
           return .none
 
         case .failure:
@@ -123,7 +123,7 @@ struct SignInReducer {
         state.fetchGoogleSignIn.isLoading = false
         switch result {
         case .success:
-          sideEffect.routeToMe()
+          sideEffect.routeToHome()
           return .none
 
         case .failure(let error):
@@ -138,8 +138,8 @@ struct SignInReducer {
         sideEffect.routeToSignUp()
         return .none
 
-      case .routeToMe:
-        sideEffect.routeToMe()
+      case .routeToHome:
+        sideEffect.routeToHome()
         return .none
 
       case .throwError(let error):

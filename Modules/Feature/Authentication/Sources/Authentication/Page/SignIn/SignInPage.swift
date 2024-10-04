@@ -207,7 +207,7 @@ extension SignInPage: View {
                       return
                     }
 
-                    store.send(.routeToMe)
+                    store.send(.routeToHome)
                   }
                 }
 

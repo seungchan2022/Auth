@@ -77,10 +77,10 @@ extension SignInSideEffect {
     }
   }
 
-  var routeToMe: () -> Void {
+  var routeToHome: () -> Void {
     {
       navigator.next(
-        linkItem: .init(path: Link.Authentication.Path.me.rawValue),
+        linkItem: .init(path: Link.Dashboard.Path.home.rawValue),
         isAnimated: true)
     }
   }

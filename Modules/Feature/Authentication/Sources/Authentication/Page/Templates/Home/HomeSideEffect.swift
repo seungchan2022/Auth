@@ -6,12 +6,12 @@ import Foundation
 // MARK: - HomeSideEffect
 
 struct HomeSideEffect {
-  let useCase: DashboardEnvironmentUsable
+  let useCase: AuthenticationEnvironmentUsable
   let main: AnySchedulerOf<DispatchQueue>
   let navigator: RootNavigatorType
 
   init(
-    useCase: DashboardEnvironmentUsable,
+    useCase: AuthenticationEnvironmentUsable,
     main: AnySchedulerOf<DispatchQueue> = .main,
     navigator: RootNavigatorType)
   {

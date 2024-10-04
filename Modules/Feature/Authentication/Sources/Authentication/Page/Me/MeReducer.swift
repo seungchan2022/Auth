@@ -38,6 +38,7 @@ struct MeReducer {
 
     case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
 
+    case routeToBack
     case routeToUpdateAuth
 
     case throwError(CompositeErrorRepository)
@@ -76,6 +77,10 @@ struct MeReducer {
         case .failure(let error):
           return .run { await $0(.throwError(error)) }
         }
+
+      case .routeToBack:
+        sideEffect.routeToBack()
+        return .none
 
       case .routeToUpdateAuth:
         sideEffect.routeToAuth()

@@ -49,8 +49,7 @@ extension DesignSystemNavigationBar: View {
             }
             if let image = backAction.image {
               image
-                .resizable()
-                .frame(width: 25, height: 25)
+                .imageScale(.large)
                 .foregroundStyle(.black)
                 .background {
                   Circle()

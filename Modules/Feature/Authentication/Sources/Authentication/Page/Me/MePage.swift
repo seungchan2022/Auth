@@ -22,7 +22,11 @@ extension MePage: View {
   var body: some View {
     VStack {
       DesignSystemNavigation(
-        barItem: .init(title: ""),
+        barItem: .init(
+          backAction: .init(
+            image: Image(systemName: "chevron.left"),
+            action: { store.send(.routeToBack) }),
+          title: ""),
         largeTitle: "Me")
       {
         VStack {
