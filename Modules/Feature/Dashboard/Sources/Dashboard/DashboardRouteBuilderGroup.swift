@@ -1,14 +1,20 @@
 import Architecture
 import LinkNavigator
 
-// MARK: - AuthenticationRouteBuilderGroup
+// MARK: - DashboardRouteBuilderGroup
 
-public struct AuthenticationRouteBuilderGroup<RootNavigator: RootNavigatorType> {
+public struct DashboardRouteBuilderGroup<RootNavigator: RootNavigatorType> {
   public init() { }
 }
 
-extension AuthenticationRouteBuilderGroup {
+extension DashboardRouteBuilderGroup {
   public static var release: [RouteBuilderOf<RootNavigator>] {
+    [
+      HomeRouteBuiilder.generate(),
+    ]
+  }
+
+  public static var templates: [RouteBuilderOf<RootNavigator>] {
     [
       LandingRouteBuilder.generate(),
       MeRouteBuilder.generate(),
@@ -16,11 +22,6 @@ extension AuthenticationRouteBuilderGroup {
       SignUpRouteBuilder.generate(),
       UpdateAuthRouteBuilder.generate(),
       UpdatePasswordRouteBuilder.generate(),
-    ]
-  }
-
-  public static var templates: [RouteBuilderOf<RootNavigator>] {
-    [
     ]
   }
 }

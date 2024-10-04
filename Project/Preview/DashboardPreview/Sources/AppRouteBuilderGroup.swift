@@ -1,5 +1,4 @@
 import Architecture
-import Authentication
 import Dashboard
 import Foundation
 import LinkNavigator
@@ -7,7 +6,7 @@ import LinkNavigator
 struct AppRouteBuilderGroup<RootNavigator: RootNavigatorType> {
 
   var release: [RouteBuilderOf<RootNavigator>] {
-    AuthenticationRouteBuilderGroup.release
-      + DashboardRouteBuilderGroup.release
+    DashboardRouteBuilderGroup.release
+      + DashboardRouteBuilderGroup.templates
   }
 }

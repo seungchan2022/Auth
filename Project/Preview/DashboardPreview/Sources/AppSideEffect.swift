@@ -1,5 +1,4 @@
 import Architecture
-import Authentication
 import Dashboard
 import Domain
 import Foundation
@@ -8,8 +7,7 @@ import Platform
 
 // MARK: - AppSideEffect
 
-struct AppSideEffect: DependencyType, AuthenticationEnvironmentUsable, DashboardEnvironmentUsable {
+struct AppSideEffect: DependencyType, DashboardEnvironmentUsable {
   let toastViewModel: ToastViewActionType
   let authenticationUseCase: AuthenticationUseCase
-
 }

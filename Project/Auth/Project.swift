@@ -67,6 +67,7 @@ extension [TargetDependency] {
   public static var `default`: [TargetDependency] {
     [
       .package(product: "Authentication", type: .runtime),
+      .package(product: "Dashboard", type: .runtime),
     ]
   }
 }

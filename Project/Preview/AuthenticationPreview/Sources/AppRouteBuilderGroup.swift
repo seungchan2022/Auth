@@ -7,5 +7,6 @@ struct AppRouteBuilderGroup<RootNavigator: RootNavigatorType> {
 
   var release: [RouteBuilderOf<RootNavigator>] {
     AuthenticationRouteBuilderGroup.release
+      + AuthenticationRouteBuilderGroup.templates
   }
 }

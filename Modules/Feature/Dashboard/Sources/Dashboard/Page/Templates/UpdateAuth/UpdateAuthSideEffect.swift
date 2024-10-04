@@ -5,12 +5,12 @@ import Foundation
 // MARK: - UpdateAuthSideEffect
 
 struct UpdateAuthSideEffect {
-  let useCase: AuthenticationEnvironmentUsable
+  let useCase: DashboardEnvironmentUsable
   let main: AnySchedulerOf<DispatchQueue>
   let navigator: RootNavigatorType
 
   init(
-    useCase: AuthenticationEnvironmentUsable,
+    useCase: DashboardEnvironmentUsable,
     main: AnySchedulerOf<DispatchQueue> = .main,
     navigator: RootNavigatorType)
   {
