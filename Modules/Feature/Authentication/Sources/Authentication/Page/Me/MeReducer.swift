@@ -2,6 +2,8 @@ import Architecture
 import ComposableArchitecture
 import Domain
 import Foundation
+import SwiftUI
+import PhotosUI
 
 @Reducer
 struct MeReducer {
@@ -24,6 +26,9 @@ struct MeReducer {
 
     var user: Authentication.Me.Response = .init(uid: "", userName: "", email: "", photoURL: "")
     var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+
+    var selectedImage: PhotosPickerItem?
+    var profileImage: Image?
 
     init(id: UUID = UUID()) {
       self.id = id
@@ -99,3 +104,5 @@ struct MeReducer {
   private let sideEffect: MeSideEffect
 
 }
+
+
