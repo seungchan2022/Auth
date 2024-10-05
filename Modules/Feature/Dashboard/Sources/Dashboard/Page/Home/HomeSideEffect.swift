@@ -29,4 +29,13 @@ extension HomeSideEffect {
         isAnimated: true)
     }
   }
+
+  var routeToNewMessage: () -> Void {
+    {
+      navigator.fullSheet(
+        linkItem: .init(path: Link.Dashboard.Path.newMessage.rawValue),
+        isAnimated: true,
+        prefersLargeTitles: false)
+    }
+  }
 }

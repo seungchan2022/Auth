@@ -23,7 +23,7 @@ extension HomePage: View {
           moreActionList: [
             .init(
               image: Image(systemName: "square.and.pencil"),
-              action: { }),
+              action: { store.send(.routeToNewMessage) }),
           ]),
         largeTitle: "Chat")
       {

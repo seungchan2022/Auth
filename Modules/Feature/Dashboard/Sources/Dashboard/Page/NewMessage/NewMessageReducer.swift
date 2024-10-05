@@ -4,13 +4,13 @@ import Domain
 import Foundation
 
 @Reducer
-struct HomeReducer {
+struct NewMessageReducer {
 
   // MARK: Lifecycle
 
   init(
     pageID: String = UUID().uuidString,
-    sideEffect: HomeSideEffect)
+    sideEffect: NewMessageSideEffect)
   {
     self.pageID = pageID
     self.sideEffect = sideEffect
@@ -18,7 +18,6 @@ struct HomeReducer {
 
   // MARK: Internal
 
-  @ObservableState
   struct State: Identifiable {
     let id: UUID
 
@@ -31,8 +30,7 @@ struct HomeReducer {
     case binding(BindingAction<State>)
     case teardown
 
-    case routeToMe
-    case routeToNewMessage
+    case routeToClose
 
     case throwError(CompositeErrorRepository)
   }
@@ -52,12 +50,8 @@ struct HomeReducer {
         return .concatenate(
           CancelID.allCases.map { .cancel(pageID: pageID, id: $0) })
 
-      case .routeToMe:
-        sideEffect.routeToMe()
-        return .none
-
-      case .routeToNewMessage:
-        sideEffect.routeToNewMessage()
+      case .routeToClose:
+        sideEffect.routeToClose()
         return .none
 
       case .throwError(let error):
@@ -70,6 +64,6 @@ struct HomeReducer {
   // MARK: Private
 
   private let pageID: String
-  private let sideEffect: HomeSideEffect
+  private let sideEffect: NewMessageSideEffect
 
 }
