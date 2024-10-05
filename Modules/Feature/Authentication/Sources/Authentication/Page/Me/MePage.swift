@@ -25,46 +25,50 @@ extension MePage: View {
         barItem: .init(
           backAction: .init(
             image: Image(systemName: "chevron.left"),
-            action: { store.send(.routeToBack) }),
-          title: ""),
-        largeTitle: "Me")
+            action: { store.send(.routeToBack) })))
       {
         VStack {
           Button(action: { }) {
-            VStack(alignment: .leading) {
-              HStack(spacing: 12) {
+            VStack(alignment: .center) {
+
                 RemoteImage(url: store.user.photoURL ?? "") {
-                  Image(systemName: "person.circle")
+                  Image(systemName: "person.circle.fill")
                     .resizable()
-                    .frame(width: 80, height: 80)
-                    .fontWeight(.ultraLight)
+                    .frame(width: 120, height: 120)
+                    .foregroundStyle(.gray)
+                    .overlay(alignment: .bottomTrailing) {
+                      Circle()
+                        .fill(.white)
+                        .frame(width: 40, height: 40)
+
+                      Image(systemName: "camera.circle.fill")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.gray)
+                    }
                 }
                 .scaledToFill()
-                .frame(width: 80, height: 80)
+                .frame(width: 120, height: 120)
                 .clipShape(Circle())
+                .overlay(alignment: .bottomTrailing) {
+                  Circle()
+                    .fill(.white)
+                    .frame(width: 40, height: 40)
 
-                VStack(alignment: .leading) {
-                  Text("이메일: \(store.user.email ?? "")")
-
-                  Text("이름: \(userName)")
+                  Image(systemName: "camera.circle.fill")
+                    .resizable()
+                    .frame(width: 40, height: 40)
+                    .foregroundStyle(.gray)
                 }
-                .lineLimit(1)
 
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                  .resizable()
-                  .frame(width: 14, height: 20)
-              }
-              .padding(.horizontal, 16)
+              Text("\(userName)")
+                .font(.title2)
+                .fontWeight(.bold)
 
               Divider()
             }
             .foregroundStyle(.black)
           }
-
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .onTapGesture { }
 
           VStack(spacing: 32) {
             Button(action: { store.send(.routeToUpdateAuth) }) {
@@ -81,11 +85,6 @@ extension MePage: View {
 
                   Spacer()
 
-                  Image(systemName: "chevron.right")
-                    .resizable()
-                    .fontWeight(.light)
-                    .foregroundStyle(.black)
-                    .frame(width: 14, height: 20)
                 }
                 .padding(.horizontal, 16)
 
@@ -95,7 +94,7 @@ extension MePage: View {
           }
           .padding(.top, 32)
         }
-        .padding(.vertical, 16)
+
       }
     }
     .toolbar(.hidden, for: .navigationBar)
