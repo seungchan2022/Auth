@@ -1,10 +1,11 @@
 import Architecture
 import ComposableArchitecture
+import Domain
 import Foundation
 
-// MARK: - NewMessageSideEffect
+// MARK: - ChatSideEffect
 
-struct NewMessageSideEffect {
+struct ChatSideEffect {
   let useCase: DashboardEnvironmentUsable
   let main: AnySchedulerOf<DispatchQueue>
   let navigator: RootNavigatorType
@@ -20,18 +21,10 @@ struct NewMessageSideEffect {
   }
 }
 
-extension NewMessageSideEffect {
-  var routeToClose: () -> Void {
+extension ChatSideEffect {
+  var routeToBack: () -> Void {
     {
-      navigator.close(isAnimated: true, completeAction: { })
-    }
-  }
-
-  var routeToChat: () -> Void {
-    {
-      navigator.next(
-        linkItem: .init(path: Link.Dashboard.Path.chat.rawValue),
-        isAnimated: true)
+      navigator.back(isAnimated: true)
     }
   }
 }

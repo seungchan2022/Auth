@@ -38,4 +38,12 @@ extension HomeSideEffect {
         prefersLargeTitles: false)
     }
   }
+
+  var routeToChat: () -> Void {
+    {
+      navigator.next(
+        linkItem: .init(path: Link.Dashboard.Path.chat.rawValue),
+        isAnimated: true)
+    }
+  }
 }

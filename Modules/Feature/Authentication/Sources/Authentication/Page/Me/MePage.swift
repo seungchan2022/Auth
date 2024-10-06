@@ -1,8 +1,8 @@
 import Architecture
 import ComposableArchitecture
 import DesignSystem
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
 // MARK: - MePage
 
@@ -53,8 +53,7 @@ extension MePage: View {
                   .fontWeight(.bold)
 
                 Divider()
-              }
-              else {
+              } else {
                 RemoteImage(url: store.user.photoURL ?? "") {
                   Image(systemName: "person.circle.fill")
                     .resizable()
@@ -117,7 +116,6 @@ extension MePage: View {
                     .foregroundStyle(.black)
 
                   Spacer()
-
                 }
                 .padding(.horizontal, 16)
 

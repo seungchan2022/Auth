@@ -31,7 +31,7 @@ extension HomePage: View {
           ScrollView(.horizontal) {
             LazyHStack(spacing: 16) {
               ForEach(0..<5) { _ in
-                Button(action: { }) {
+                Button(action: { store.send(.routeToChat) }) {
                   VStack(alignment: .center) {
                     Image(systemName: "person.circle.fill")
                       .resizable()
@@ -62,7 +62,7 @@ extension HomePage: View {
 
           LazyVStack(spacing: 8) {
             ForEach(0..<5) { _ in
-              Button(action: { }) {
+              Button(action: { store.send(.routeToChat) }) {
                 VStack {
                   HStack {
                     Image(systemName: "person.circle.fill")

@@ -30,36 +30,35 @@ extension MePage: View {
         VStack {
           Button(action: { }) {
             VStack(alignment: .center) {
+              RemoteImage(url: store.user.photoURL ?? "") {
+                Image(systemName: "person.circle.fill")
+                  .resizable()
+                  .frame(width: 120, height: 120)
+                  .foregroundStyle(.gray)
+                  .overlay(alignment: .bottomTrailing) {
+                    Circle()
+                      .fill(.white)
+                      .frame(width: 40, height: 40)
 
-                RemoteImage(url: store.user.photoURL ?? "") {
-                  Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 120, height: 120)
-                    .foregroundStyle(.gray)
-                    .overlay(alignment: .bottomTrailing) {
-                      Circle()
-                        .fill(.white)
-                        .frame(width: 40, height: 40)
+                    Image(systemName: "camera.circle.fill")
+                      .resizable()
+                      .frame(width: 40, height: 40)
+                      .foregroundStyle(.gray)
+                  }
+              }
+              .scaledToFill()
+              .frame(width: 120, height: 120)
+              .clipShape(Circle())
+              .overlay(alignment: .bottomTrailing) {
+                Circle()
+                  .fill(.white)
+                  .frame(width: 40, height: 40)
 
-                      Image(systemName: "camera.circle.fill")
-                        .resizable()
-                        .frame(width: 40, height: 40)
-                        .foregroundStyle(.gray)
-                    }
-                }
-                .scaledToFill()
-                .frame(width: 120, height: 120)
-                .clipShape(Circle())
-                .overlay(alignment: .bottomTrailing) {
-                  Circle()
-                    .fill(.white)
-                    .frame(width: 40, height: 40)
-
-                  Image(systemName: "camera.circle.fill")
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .foregroundStyle(.gray)
-                }
+                Image(systemName: "camera.circle.fill")
+                  .resizable()
+                  .frame(width: 40, height: 40)
+                  .foregroundStyle(.gray)
+              }
 
               Text("\(userName)")
                 .font(.title2)
@@ -84,7 +83,6 @@ extension MePage: View {
                     .foregroundStyle(.black)
 
                   Spacer()
-
                 }
                 .padding(.horizontal, 16)
 
@@ -94,7 +92,6 @@ extension MePage: View {
           }
           .padding(.top, 32)
         }
-
       }
     }
     .toolbar(.hidden, for: .navigationBar)

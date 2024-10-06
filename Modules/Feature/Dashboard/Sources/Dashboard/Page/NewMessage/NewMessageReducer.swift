@@ -31,6 +31,7 @@ struct NewMessageReducer {
     case teardown
 
     case routeToClose
+    case routeToChat
 
     case throwError(CompositeErrorRepository)
   }
@@ -52,6 +53,10 @@ struct NewMessageReducer {
 
       case .routeToClose:
         sideEffect.routeToClose()
+        return .none
+
+      case .routeToChat:
+        sideEffect.routeToChat()
         return .none
 
       case .throwError(let error):

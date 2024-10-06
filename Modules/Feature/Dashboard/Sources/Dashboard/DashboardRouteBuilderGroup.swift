@@ -12,6 +12,7 @@ extension DashboardRouteBuilderGroup {
     [
       HomeRouteBuiilder.generate(),
       NewMessageRouteBuilder.generate(),
+      ChatRouteBuilder.generate(),
     ]
   }
 

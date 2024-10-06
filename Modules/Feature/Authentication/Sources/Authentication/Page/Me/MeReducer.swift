@@ -2,8 +2,8 @@ import Architecture
 import ComposableArchitecture
 import Domain
 import Foundation
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
 @Reducer
 struct MeReducer {
@@ -104,5 +104,3 @@ struct MeReducer {
   private let sideEffect: MeSideEffect
 
 }
-
-

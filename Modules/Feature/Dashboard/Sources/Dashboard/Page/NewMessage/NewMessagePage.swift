@@ -40,7 +40,7 @@ extension NewMessagePage: View {
 
           LazyVStack(spacing: 8) {
             ForEach(0..<20) { _ in
-              Button(action: { }) {
+              Button(action: { store.send(.routeToChat) }) {
                 VStack {
                   HStack {
                     Image(systemName: "person.circle.fill")
