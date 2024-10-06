@@ -35,6 +35,7 @@ let package = Package(
         "CombineExt",
         .product(name: "Logging", package: "swift-log"),
         .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+        .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
         .product(name: "FirebaseStorage", package: "firebase-ios-sdk"),
         .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
         .product(name: "GoogleSignInSwift", package: "GoogleSignIn-iOS"),

@@ -3,6 +3,7 @@ import Combine
 import Domain
 import Firebase
 import FirebaseAuth
+import FirebaseFirestore
 import GoogleSignIn
 
 // MARK: - AuthenticationUseCasePlatform
@@ -17,8 +18,23 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
   public var signUpEmail: (Authentication.Email.Request) -> AnyPublisher<Void, CompositeErrorRepository> {
     { req in
       Future<Void, CompositeErrorRepository> { promise in
-        Auth.auth().createUser(withEmail: req.email, password: req.password) { _, error in
-          guard let error else { return promise(.success(Void())) }
+        Auth.auth().createUser(withEmail: req.email, password: req.password) { result, error in
+          guard let error else {
+            Task {
+              do {
+                if let user = result?.user {
+                  try await uploadUserData(
+                    id: user.uid,
+                    email: req.email,
+                    userName: req.email.components(separatedBy: "@").first ?? "")
+                }
+              } catch {
+                return promise(.failure(.other(error)))
+              }
+            }
+
+            return promise(.success(Void()))
+          }
 
           return promise(.failure(.other(error)))
         }
@@ -120,6 +136,16 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
         changeRequest?.displayName = newName
         changeRequest?.commitChanges { error in
           guard let error else {
+            Firestore.firestore().collection("users")
+              .document(me.uid)
+              .updateData(["userName": newName]) { error in
+                if let error = error {
+                  return promise(.failure(.other(error)))
+                } else {
+                  return promise(.success(Void()))
+                }
+              }
+
             return promise(.success(Void()))
           }
 
@@ -199,6 +225,14 @@ extension User {
       userName: displayName,
       email: email,
       photoURL: photoURL?.absoluteString)
+  }
+}
+
+extension AuthenticationUseCasePlatform {
+  private func uploadUserData(id: String, email: String, userName: String) async throws {
+    let user = Authentication.Me.Response(uid: id, userName: userName, email: email, photoURL: .none)
+    guard let encodedUser = try? Firestore.Encoder().encode(user) else { return }
+    try await Firestore.firestore().collection("users").document(id).setData(encodedUser)
   }
 }
 

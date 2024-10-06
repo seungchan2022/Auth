@@ -12,8 +12,9 @@ struct UpdateAuthPage {
 extension UpdateAuthPage {
 
   private var userName: String {
-    guard let userName = store.user.userName else { return "이름을 설정해주세요." }
-    return userName.isEmpty ? "이름을 설정해주세요." : userName
+    guard let userName = store.user.userName
+    else { return String(store.user.email?.split(separator: "@").first ?? "") }
+    return userName.isEmpty ? String(store.user.email?.split(separator: "@").first ?? "") : userName
   }
 }
 
