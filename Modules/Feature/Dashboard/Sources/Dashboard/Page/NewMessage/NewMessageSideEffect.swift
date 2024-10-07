@@ -2,6 +2,7 @@ import Architecture
 import Combine
 import CombineExt
 import ComposableArchitecture
+import Domain
 import Foundation
 
 // MARK: - NewMessageSideEffect
@@ -41,10 +42,12 @@ extension NewMessageSideEffect {
     }
   }
 
-  var routeToChat: () -> Void {
-    {
+  var routeToChat: (Authentication.Me.Response) -> Void {
+    { item in
       navigator.next(
-        linkItem: .init(path: Link.Dashboard.Path.chat.rawValue),
+        linkItem: .init(
+          path: Link.Dashboard.Path.chat.rawValue,
+          items: item),
         isAnimated: true)
     }
   }

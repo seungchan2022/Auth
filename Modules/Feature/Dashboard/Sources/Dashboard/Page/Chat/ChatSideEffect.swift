@@ -22,6 +22,18 @@ struct ChatSideEffect {
 }
 
 extension ChatSideEffect {
+  var getUserInfo: (Authentication.Me.Response) -> Effect<ChatReducer.Action> {
+    { user in
+      .publisher {
+        useCase.chatUseCase
+          .getUser(user.uid)
+          .receive(on: main)
+          .mapToResult()
+          .map(ChatReducer.Action.fetchUserInfo)
+      }
+    }
+  }
+
   var routeToBack: () -> Void {
     {
       navigator.back(isAnimated: true)

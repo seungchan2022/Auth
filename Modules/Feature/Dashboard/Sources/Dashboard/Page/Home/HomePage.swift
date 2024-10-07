@@ -31,7 +31,7 @@ extension HomePage: View {
           ScrollView(.horizontal) {
             LazyHStack(spacing: 16) {
               ForEach(store.userList, id: \.uid) { user in
-                Button(action: { store.send(.routeToChat) }) {
+                Button(action: { store.send(.routeToChat(user)) }) {
                   VStack(alignment: .center) {
                     RemoteImage(url: user.photoURL ?? "") {
                       Image(systemName: "person.circle.fill")
@@ -76,7 +76,7 @@ extension HomePage: View {
 
           LazyVStack(spacing: 8) {
             ForEach(0..<5) { _ in
-              Button(action: { store.send(.routeToChat) }) {
+              Button(action: { }) {
                 VStack {
                   HStack {
                     Image(systemName: "person.circle.fill")

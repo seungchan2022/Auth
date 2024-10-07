@@ -23,19 +23,24 @@ extension ChatPage: View {
           backAction: .init(
             image: Image(systemName: "chevron.left"),
             action: { store.send(.routeToBack) }),
-          title: "채팅 보낼 유저"),
+          title: (store.userInfo.userName ?? "").uppercased()),
         isShowDivider: true)
       {
         // 전체
         VStack {
           // 채팅 보낼 유저 정보
           VStack(alignment: .center, spacing: 8) {
-            Image(systemName: "person.circle.fill")
-              .resizable()
-              .frame(width: 120, height: 120)
-              .foregroundStyle(.gray)
+            RemoteImage(url: store.userInfo.photoURL ?? "") {
+              Image(systemName: "person.circle.fill")
+                .resizable()
+                .frame(width: 120, height: 120)
+                .clipShape(Circle())
+                .foregroundStyle(.gray)
+            }
+            .frame(width: 120, height: 120)
+            .clipShape(Circle())
 
-            Text("채팅 보낼 유저 이름")
+            Text(store.userInfo.userName ?? "")
               .font(.title3)
               .fontWeight(.semibold)
 
@@ -72,7 +77,9 @@ extension ChatPage: View {
       .padding(.horizontal, 12)
     }
     .toolbar(.hidden, for: .navigationBar)
-    .onAppear { }
+    .onAppear {
+      store.send(.getUserInfo(store.userInfo))
+    }
     .onDisappear {
       store.send(.teardown)
     }

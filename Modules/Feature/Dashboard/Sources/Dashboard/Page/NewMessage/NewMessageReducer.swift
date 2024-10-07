@@ -39,7 +39,7 @@ struct NewMessageReducer {
     case fetchUserList(Result<[Authentication.Me.Response], CompositeErrorRepository>)
 
     case routeToClose
-    case routeToChat
+    case routeToChat(Authentication.Me.Response)
 
     case throwError(CompositeErrorRepository)
   }
@@ -81,8 +81,8 @@ struct NewMessageReducer {
         sideEffect.routeToClose()
         return .none
 
-      case .routeToChat:
-        sideEffect.routeToChat()
+      case .routeToChat(let item):
+        sideEffect.routeToChat(item)
         return .none
 
       case .throwError(let error):

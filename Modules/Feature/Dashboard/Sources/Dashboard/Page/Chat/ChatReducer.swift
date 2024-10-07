@@ -22,14 +22,25 @@ struct ChatReducer {
   struct State: Equatable, Identifiable {
     let id: UUID
 
-    init(id: UUID = UUID()) {
+    let userInfo: Authentication.Me.Response
+
+    var fetchUserInfo: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+
+    init(
+      id: UUID = UUID(),
+      userInfo: Authentication.Me.Response)
+    {
       self.id = id
+      self.userInfo = userInfo
     }
   }
 
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case teardown
+
+    case getUserInfo(Authentication.Me.Response)
+    case fetchUserInfo(Result<Authentication.Me.Response, CompositeErrorRepository>)
 
     case routeToBack
 
@@ -38,11 +49,12 @@ struct ChatReducer {
 
   enum CancelID: Equatable, CaseIterable {
     case teardown
+    case requestUserInfo
   }
 
   var body: some Reducer<State, Action> {
     BindingReducer()
-    Reduce { _, action in
+    Reduce { state, action in
       switch action {
       case .binding:
         return .none
@@ -50,6 +62,23 @@ struct ChatReducer {
       case .teardown:
         return .concatenate(
           CancelID.allCases.map { .cancel(pageID: pageID, id: $0) })
+
+      case .getUserInfo(let user):
+        state.fetchUserInfo.isLoading = true
+        return sideEffect
+          .getUserInfo(user)
+          .cancellable(pageID: pageID, id: CancelID.requestUserInfo, cancelInFlight: true)
+
+      case .fetchUserInfo(let result):
+        state.fetchUserInfo.isLoading = false
+        switch result {
+        case .success(let user):
+          state.fetchUserInfo.value = user
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
 
       case .routeToBack:
         sideEffect.routeToBack()

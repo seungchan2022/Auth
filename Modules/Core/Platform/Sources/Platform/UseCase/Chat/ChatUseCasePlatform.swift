@@ -13,6 +13,31 @@ public struct ChatUseCasePlatform {
 // MARK: ChatUseCase
 
 extension ChatUseCasePlatform: ChatUseCase {
+  public var getUser: (String) -> AnyPublisher<Authentication.Me.Response, CompositeErrorRepository> {
+    { userId in
+      Future<Authentication.Me.Response, CompositeErrorRepository> { promise in
+        Firestore.firestore()
+          .collection("users")
+          .document(userId)
+          .getDocument { documentSnapshot, error in
+            if let error = error {
+              return promise(.failure(.other(error)))
+            }
+            guard
+              let document = documentSnapshot,
+              let user = try? document.data(as: Authentication.Me.Response.self)
+            else {
+              return promise(.failure(.invalidTypeCasting))
+            }
+
+            // 성공적으로 유저를 가져온 경우
+            promise(.success(user))
+          }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
   public var userItemList: () -> AnyPublisher<[Authentication.Me.Response], CompositeErrorRepository> {
     {
       Future<[Authentication.Me.Response], CompositeErrorRepository> { promise in

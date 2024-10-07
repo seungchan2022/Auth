@@ -40,7 +40,7 @@ extension NewMessagePage: View {
 
           LazyVStack(spacing: 8) {
             ForEach(store.userList, id: \.uid) { user in
-              Button(action: { store.send(.routeToChat) }) {
+              Button(action: { store.send(.routeToChat(user)) }) {
                 VStack {
                   HStack {
                     RemoteImage(url: user.photoURL ?? "") {
