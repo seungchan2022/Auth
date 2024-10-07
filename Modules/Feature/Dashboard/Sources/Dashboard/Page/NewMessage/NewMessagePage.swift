@@ -39,15 +39,20 @@ extension NewMessagePage: View {
           Divider()
 
           LazyVStack(spacing: 8) {
-            ForEach(0..<20) { _ in
+            ForEach(store.userList, id: \.uid) { user in
               Button(action: { store.send(.routeToChat) }) {
                 VStack {
                   HStack {
-                    Image(systemName: "person.circle.fill")
-                      .resizable()
-                      .frame(width: 40, height: 40)
+                    RemoteImage(url: user.photoURL ?? "") {
+                      Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                    }
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
 
-                    Text("메시지를 보낼 유저 이름")
+                    Text(user.userName ?? "")
                       .font(.callout)
                       .fontWeight(.bold)
 
@@ -65,7 +70,9 @@ extension NewMessagePage: View {
       }
     }
     .toolbar(.hidden, for: .navigationBar)
-    .onAppear { }
+    .onAppear {
+      store.send(.getUserList)
+    }
     .onDisappear {
       store.send(.teardown)
     }

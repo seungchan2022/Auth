@@ -10,4 +10,5 @@ import Platform
 struct AppSideEffect: DependencyType, DashboardEnvironmentUsable {
   let toastViewModel: ToastViewActionType
   let authenticationUseCase: AuthenticationUseCase
+  let chatUseCase: ChatUseCase
 }

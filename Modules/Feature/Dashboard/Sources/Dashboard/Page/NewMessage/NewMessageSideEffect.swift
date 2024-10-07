@@ -1,4 +1,6 @@
 import Architecture
+import Combine
+import CombineExt
 import ComposableArchitecture
 import Foundation
 
@@ -21,6 +23,18 @@ struct NewMessageSideEffect {
 }
 
 extension NewMessageSideEffect {
+  var getUserList: () -> Effect<NewMessageReducer.Action> {
+    {
+      .publisher {
+        useCase.chatUseCase
+          .userItemList()
+          .receive(on: main)
+          .mapToResult()
+          .map(NewMessageReducer.Action.fetchUserList)
+      }
+    }
+  }
+
   var routeToClose: () -> Void {
     {
       navigator.close(isAnimated: true, completeAction: { })

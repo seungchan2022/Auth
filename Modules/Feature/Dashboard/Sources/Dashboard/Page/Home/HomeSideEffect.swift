@@ -1,5 +1,6 @@
 import Architecture
 import Combine
+import CombineExt
 import ComposableArchitecture
 import Foundation
 
@@ -22,6 +23,18 @@ struct HomeSideEffect {
 }
 
 extension HomeSideEffect {
+  var getUserList: () -> Effect<HomeReducer.Action> {
+    {
+      .publisher {
+        useCase.chatUseCase
+          .userItemList()
+          .receive(on: main)
+          .mapToResult()
+          .map(HomeReducer.Action.fetchUserList)
+      }
+    }
+  }
+
   var routeToMe: () -> Void {
     {
       navigator.next(

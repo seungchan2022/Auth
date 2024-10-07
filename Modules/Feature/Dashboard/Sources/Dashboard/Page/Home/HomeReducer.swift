@@ -22,6 +22,9 @@ struct HomeReducer {
   struct State: Identifiable {
     let id: UUID
 
+    var userList: [Authentication.Me.Response] = []
+    var fetchUserList: FetchState.Data<[Authentication.Me.Response]?> = .init(isLoading: false, value: .none)
+
     init(id: UUID = UUID()) {
       self.id = id
     }
@@ -30,6 +33,9 @@ struct HomeReducer {
   enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
     case teardown
+
+    case getUserList
+    case fetchUserList(Result<[Authentication.Me.Response], CompositeErrorRepository>)
 
     case routeToMe
     case routeToNewMessage
@@ -40,11 +46,12 @@ struct HomeReducer {
 
   enum CancelID: Equatable, CaseIterable {
     case teardown
+    case requestUserList
   }
 
   var body: some Reducer<State, Action> {
     BindingReducer()
-    Reduce { _, action in
+    Reduce { state, action in
       switch action {
       case .binding:
         return .none
@@ -52,6 +59,23 @@ struct HomeReducer {
       case .teardown:
         return .concatenate(
           CancelID.allCases.map { .cancel(pageID: pageID, id: $0) })
+
+      case .getUserList:
+        state.fetchUserList.isLoading = true
+        return sideEffect
+          .getUserList()
+          .cancellable(pageID: pageID, id: CancelID.requestUserList, cancelInFlight: true)
+
+      case .fetchUserList(let result):
+        state.fetchUserList.isLoading = false
+        switch result {
+        case .success(let itemList):
+          state.userList = itemList
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
 
       case .routeToMe:
         sideEffect.routeToMe()

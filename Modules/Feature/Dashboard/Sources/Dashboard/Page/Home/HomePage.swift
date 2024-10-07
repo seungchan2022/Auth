@@ -25,29 +25,43 @@ extension HomePage: View {
               image: Image(systemName: "square.and.pencil"),
               action: { store.send(.routeToNewMessage) }),
           ]),
-        largeTitle: "Chat")
+        largeTitle: "Home")
       {
         VStack {
           ScrollView(.horizontal) {
             LazyHStack(spacing: 16) {
-              ForEach(0..<5) { _ in
+              ForEach(store.userList, id: \.uid) { user in
                 Button(action: { store.send(.routeToChat) }) {
                   VStack(alignment: .center) {
-                    Image(systemName: "person.circle.fill")
-                      .resizable()
-                      .frame(width: 64, height: 64)
-                      .foregroundStyle(Color(.systemGray))
+                    RemoteImage(url: user.photoURL ?? "") {
+                      Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .frame(width: 64, height: 64)
+                        .foregroundStyle(Color(.systemGray))
 
-                      .overlay(alignment: .bottomTrailing) {
-                        Circle()
-                          .fill(.white)
-                          .frame(width: 18, height: 18)
-                        Circle()
-                          .fill(.green)
-                          .frame(width: 12, height: 12)
-                      }
+                        .overlay(alignment: .bottomTrailing) {
+                          Circle()
+                            .fill(.white)
+                            .frame(width: 18, height: 18)
+                          Circle()
+                            .fill(.green)
+                            .frame(width: 12, height: 12)
+                        }
+                    }
 
-                    Text("UserNam333e")
+                    .frame(width: 64, height: 64)
+                    .foregroundStyle(Color(.systemGray))
+
+                    .overlay(alignment: .bottomTrailing) {
+                      Circle()
+                        .fill(.white)
+                        .frame(width: 18, height: 18)
+                      Circle()
+                        .fill(.green)
+                        .frame(width: 12, height: 12)
+                    }
+
+                    Text(user.userName ?? "")
                       .font(.subheadline)
                       .foregroundStyle(DesignSystemColor.palette(.gray(.lv400)).color)
                       .lineLimit(.zero)
@@ -103,7 +117,9 @@ extension HomePage: View {
       }
     }
     .toolbar(.hidden, for: .navigationBar)
-    .onAppear { }
+    .onAppear {
+      store.send(.getUserList)
+    }
     .onDisappear {
       store.send(.teardown)
     }
