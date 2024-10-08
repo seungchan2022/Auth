@@ -6,9 +6,6 @@ import SwiftUI
 
 struct ChatPage {
   @Bindable var store: StoreOf<ChatReducer>
-
-  @State private var messageText = ""
-
 }
 
 extension ChatPage { }
@@ -60,17 +57,20 @@ extension ChatPage: View {
       }
 
       HStack {
-        TextField("Message..", text: $messageText, axis: .vertical)
+        TextField("Message..", text: $store.messageText, axis: .vertical)
           .padding(12)
 
         Spacer()
 
-        Button(action: { }) {
+        Button(action: {
+          store.send(.onTapSendMessage(store.messageText))
+          store.messageText = ""
+        }) {
           Text("Send")
             .padding(.trailing, 8)
         }
         .disabled(
-          messageText.isEmpty ? true : false)
+          store.messageText.isEmpty ? true : false)
       }
       .background(Color(.systemGroupedBackground))
       .clipShape(RoundedRectangle(cornerRadius: 8))

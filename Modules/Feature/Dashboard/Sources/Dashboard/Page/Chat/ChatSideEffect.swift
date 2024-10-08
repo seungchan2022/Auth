@@ -34,6 +34,18 @@ extension ChatSideEffect {
     }
   }
 
+  var sendMessage: (String, String) -> Effect<ChatReducer.Action> {
+    { toId, text in
+      .publisher {
+        useCase.chatUseCase
+          .sendMessage(toId, text)
+          .receive(on: main)
+          .mapToResult()
+          .map(ChatReducer.Action.fetchSendMessage)
+      }
+    }
+  }
+
   var routeToBack: () -> Void {
     {
       navigator.back(isAnimated: true)

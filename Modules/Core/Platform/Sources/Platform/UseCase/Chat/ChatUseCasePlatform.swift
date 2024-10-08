@@ -68,4 +68,50 @@ extension ChatUseCasePlatform: ChatUseCase {
       .eraseToAnyPublisher()
     }
   }
+
+  public var sendMessage: (String, String) -> AnyPublisher<Chat.Message.Item, CompositeErrorRepository> {
+    { toId, messageText in
+      Future<Chat.Message.Item, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return }
+
+        // 보내는 사람 참조
+        let currentUserRef = Firestore.firestore()
+          .collection("messages")
+          .document(me.uid)
+          .collection(toId)
+          .document()
+
+        // 받는 사람 참조
+        let chatPartnerRef = Firestore.firestore()
+          .collection("messages")
+          .document(toId)
+          .collection(me.uid)
+
+        let messageId = currentUserRef.documentID
+
+        let message = Chat.Message.Item(
+          fromId: me.uid,
+          toId: toId,
+          messageText: messageText)
+
+        guard var messageData = try? Firestore.Encoder().encode(message) else { return }
+        messageData["timestamp"] = Timestamp()
+
+        currentUserRef.setData(messageData) { error in
+          if let error = error {
+            return promise(.failure(.other(error)))
+          }
+
+          chatPartnerRef.document(messageId).setData(messageData) { error in
+            if let error = error {
+              return promise(.failure(.other(error)))
+            }
+
+            promise(.success(message))
+          }
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
 }

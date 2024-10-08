@@ -24,6 +24,10 @@ struct ChatReducer {
 
     let userInfo: Authentication.Me.Response
 
+    var messageText = ""
+
+    var fetchSendMessage: FetchState.Data<Chat.Message.Item?> = .init(isLoading: false, value: .none)
+
     var fetchUserInfo: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
 
     init(
@@ -40,6 +44,10 @@ struct ChatReducer {
     case teardown
 
     case getUserInfo(Authentication.Me.Response)
+
+    case onTapSendMessage(String)
+    case fetchSendMessage(Result<Chat.Message.Item, CompositeErrorRepository>)
+
     case fetchUserInfo(Result<Authentication.Me.Response, CompositeErrorRepository>)
 
     case routeToBack
@@ -50,6 +58,7 @@ struct ChatReducer {
   enum CancelID: Equatable, CaseIterable {
     case teardown
     case requestUserInfo
+    case requestSendMessage
   }
 
   var body: some Reducer<State, Action> {
@@ -68,6 +77,23 @@ struct ChatReducer {
         return sideEffect
           .getUserInfo(user)
           .cancellable(pageID: pageID, id: CancelID.requestUserInfo, cancelInFlight: true)
+
+      case .onTapSendMessage(let text):
+        state.fetchSendMessage.isLoading = true
+        return sideEffect
+          .sendMessage(state.userInfo.uid, text)
+          .cancellable(pageID: pageID, id: CancelID.requestSendMessage, cancelInFlight: true)
+
+      case .fetchSendMessage(let result):
+        state.fetchSendMessage.isLoading = false
+        switch result {
+        case .success(let item):
+          state.messageText = item.messageText
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
 
       case .fetchUserInfo(let result):
         state.fetchUserInfo.isLoading = false
