@@ -1,8 +1,10 @@
 import Combine
+import CombineExt
 import Domain
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import Foundation
 
 // MARK: - ChatUseCasePlatform
 
@@ -61,7 +63,6 @@ extension ChatUseCasePlatform: ChatUseCase {
             // 현재로그인한 유저는 제왜
             let filteredItemList = itemList.filter { $0.uid != me.uid }
 
-//            return promise(.success(itemList))
             return promise(.success(filteredItemList))
           }
       }
@@ -90,12 +91,13 @@ extension ChatUseCasePlatform: ChatUseCase {
         let messageId = currentUserRef.documentID
 
         let message = Chat.Message.Item(
+          id: messageId,
           fromId: me.uid,
           toId: toId,
-          messageText: messageText)
+          messageText: messageText,
+          date: Date())
 
-        guard var messageData = try? Firestore.Encoder().encode(message) else { return }
-        messageData["timestamp"] = Timestamp()
+        guard let messageData = try? Firestore.Encoder().encode(message) else { return }
 
         currentUserRef.setData(messageData) { error in
           if let error = error {
@@ -112,6 +114,40 @@ extension ChatUseCasePlatform: ChatUseCase {
         }
       }
       .eraseToAnyPublisher()
+    }
+  }
+
+  public var getMessage: (Authentication.Me.Response) -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> {
+    { chatPartner in
+      let messageSubject = PassthroughSubject<[Chat.Message.Item], CompositeErrorRepository>()
+
+      guard let me = Auth.auth().currentUser else {
+        return Fail(error: CompositeErrorRepository.incorrectUser).eraseToAnyPublisher()
+      }
+
+      let query = Firestore.firestore()
+        .collection("messages")
+        .document(me.uid)
+        .collection(chatPartner.uid)
+        .order(by: "date", descending: false)
+
+      query.addSnapshotListener { snapshot, error in
+        if let error = error {
+          // 에러가 발생할 경우 Subject를 통해 에러 방출
+          messageSubject.send(completion: .failure(.other(error)))
+          return
+        }
+
+        let changes = snapshot?.documentChanges.filter { $0.type == .added } ?? []
+
+        let messageItemList = changes.compactMap { try? $0.document.data(as: Chat.Message.Item.self) }
+
+        // 새로운 메시지를 Subject로 전달
+        messageSubject.send(messageItemList)
+      }
+
+      // Subject를 Publisher로 변환하여 반환
+      return messageSubject.eraseToAnyPublisher()
     }
   }
 }

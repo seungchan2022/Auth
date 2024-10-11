@@ -3,6 +3,8 @@ import ComposableArchitecture
 import Domain
 import Foundation
 
+// MARK: - ChatReducer
+
 @Reducer
 struct ChatReducer {
 
@@ -20,15 +22,8 @@ struct ChatReducer {
 
   @ObservableState
   struct State: Equatable, Identifiable {
-    let id: UUID
 
-    let userInfo: Authentication.Me.Response
-
-    var messageText = ""
-
-    var fetchSendMessage: FetchState.Data<Chat.Message.Item?> = .init(isLoading: false, value: .none)
-
-    var fetchUserInfo: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+    // MARK: Lifecycle
 
     init(
       id: UUID = UUID(),
@@ -37,6 +32,23 @@ struct ChatReducer {
       self.id = id
       self.userInfo = userInfo
     }
+
+    // MARK: Internal
+
+    let id: UUID
+
+    let userInfo: Authentication.Me.Response
+
+    var messageText = ""
+
+    var itemList: [Chat.Message.Item] = []
+
+    var fetchSendMessage: FetchState.Data<Chat.Message.Item?> = .init(isLoading: false, value: .none)
+
+    var fetchItemList: FetchState.Data<[Chat.Message.Item]?> = .init(isLoading: false, value: .none)
+
+    var fetchUserInfo: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
+
   }
 
   enum Action: Equatable, BindableAction {
@@ -47,6 +59,9 @@ struct ChatReducer {
 
     case onTapSendMessage(String)
     case fetchSendMessage(Result<Chat.Message.Item, CompositeErrorRepository>)
+
+    case getItemList
+    case fetchItemList(Result<[Chat.Message.Item], CompositeErrorRepository>)
 
     case fetchUserInfo(Result<Authentication.Me.Response, CompositeErrorRepository>)
 
@@ -59,6 +74,7 @@ struct ChatReducer {
     case teardown
     case requestUserInfo
     case requestSendMessage
+    case requestItemList
   }
 
   var body: some Reducer<State, Action> {
@@ -88,7 +104,23 @@ struct ChatReducer {
         state.fetchSendMessage.isLoading = false
         switch result {
         case .success(let item):
-          state.messageText = item.messageText
+          state.fetchSendMessage.value = item
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .getItemList:
+        return sideEffect
+          .getItemList(state.userInfo)
+          .cancellable(pageID: pageID, id: CancelID.requestItemList, cancelInFlight: true)
+
+      case .fetchItemList(let result):
+        switch result {
+        case .success(let itemList):
+          state.fetchItemList.value = itemList
+          state.itemList = state.itemList.merge(itemList)
           return .none
 
         case .failure(let error):
@@ -122,4 +154,16 @@ struct ChatReducer {
   private let pageID: String
   private let sideEffect: ChatSideEffect
 
+}
+
+extension [Chat.Message.Item] {
+  /// 중복된게 올라옴
+  fileprivate func merge(_ target: Self) -> Self {
+    let new = target.reduce(self) { curr, next in
+      guard !self.contains(where: { $0.id == next.id }) else { return curr }
+      return curr + [next]
+    }
+
+    return new
+  }
 }

@@ -46,6 +46,18 @@ extension ChatSideEffect {
     }
   }
 
+  var getItemList: (Authentication.Me.Response) -> Effect<ChatReducer.Action> {
+    { chatPartner in
+      .publisher {
+        useCase.chatUseCase
+          .getMessage(chatPartner)
+          .receive(on: main)
+          .mapToResult()
+          .map(ChatReducer.Action.fetchItemList)
+      }
+    }
+  }
+
   var routeToBack: () -> Void {
     {
       navigator.back(isAnimated: true)

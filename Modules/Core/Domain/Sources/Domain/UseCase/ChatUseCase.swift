@@ -7,4 +7,7 @@ public protocol ChatUseCase {
   var userItemList: () -> AnyPublisher<[Authentication.Me.Response], CompositeErrorRepository> { get }
 
   var sendMessage: (String, String) -> AnyPublisher<Chat.Message.Item, CompositeErrorRepository> { get }
+
+  var getMessage: (Authentication.Me.Response) -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> { get }
+
 }

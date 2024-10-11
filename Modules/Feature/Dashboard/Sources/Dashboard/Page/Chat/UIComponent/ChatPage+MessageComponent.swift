@@ -1,4 +1,6 @@
 import DesignSystem
+import Domain
+import FirebaseAuth
 import Foundation
 import SwiftUI
 
@@ -20,7 +22,7 @@ extension ChatPage.MessageComponent: View {
       if viewState.isFromCurrentUser {
         Spacer()
 
-        Text("This is a test message for now.")
+        Text(viewState.item.messageText)
           .font(.subheadline)
           .padding()
           .background(Color(.systemBlue))
@@ -40,7 +42,7 @@ extension ChatPage.MessageComponent: View {
             .frame(width: 24, height: 24)
             .clipShape(Circle())
 
-          Text("This is a test message for now.")
+          Text(viewState.item.messageText)
             .font(.subheadline)
             .padding()
             .background(Color(.systemGray5))
@@ -66,5 +68,12 @@ extension ChatPage.MessageComponent: View {
 extension ChatPage.MessageComponent {
   struct ViewState: Equatable {
     let isFromCurrentUser: Bool
+    let item: Chat.Message.Item
+
+    init(item: Chat.Message.Item) {
+      self.item = item
+      isFromCurrentUser = item.fromId == Auth.auth().currentUser?.uid
+    }
+
   }
 }
