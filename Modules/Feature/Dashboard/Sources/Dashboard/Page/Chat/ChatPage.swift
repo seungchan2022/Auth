@@ -1,14 +1,21 @@
 import ComposableArchitecture
 import DesignSystem
+import FirebaseAuth
 import SwiftUI
 
 // MARK: - ChatPage
 
 struct ChatPage {
   @Bindable var store: StoreOf<ChatReducer>
+
+  @Namespace var lastMessage
 }
 
-extension ChatPage { }
+extension ChatPage {
+  private var message: String {
+    store.itemList.last?.messageText ?? ""
+  }
+}
 
 // MARK: View
 
@@ -23,47 +30,58 @@ extension ChatPage: View {
           title: (store.userInfo.userName ?? "").uppercased()),
         isShowDivider: true)
       {
-        // 전체
-        VStack {
-          // 채팅 보낼 유저 정보
-          VStack(alignment: .center, spacing: 8) {
-            RemoteImage(url: store.userInfo.photoURL ?? "") {
-              Image(systemName: "person.circle.fill")
-                .resizable()
-                .frame(width: 120, height: 120)
-                .clipShape(Circle())
+        
+        ScrollViewReader { proxy in
+          VStack {
+            // 채팅 보낼 유저 정보
+            VStack(alignment: .center, spacing: 8) {
+              RemoteImage(url: store.userInfo.photoURL ?? "") {
+                Image(systemName: "person.circle.fill")
+                  .resizable()
+                  .frame(width: 120, height: 120)
+                  .clipShape(Circle())
+                  .foregroundStyle(.gray)
+              }
+              .frame(width: 120, height: 120)
+              .clipShape(Circle())
+
+              Text(store.userInfo.userName ?? "")
+                .font(.title3)
+                .fontWeight(.semibold)
+
+              Text("Messenger")
+                .font(.subheadline)
                 .foregroundStyle(.gray)
             }
-            .frame(width: 120, height: 120)
-            .clipShape(Circle())
 
-            Text(store.userInfo.userName ?? "")
-              .font(.title3)
-              .fontWeight(.semibold)
-
-            Text("Messenger")
-              .font(.subheadline)
-              .foregroundStyle(.gray)
-          }
-
-          // 채팅 메시지 내용
-          LazyVStack(spacing: 16) {
-            ForEach(0..<15) { _ in
-              ChatPage.MessageComponent(viewState: .init(isFromCurrentUser: Bool.random()))
+            // 채팅 메시지 내용
+            LazyVStack(spacing: 16) {
+              ForEach(store.itemList, id: \.id) { item in
+                ChatPage.MessageComponent(viewState: .init(item: item))
+              }
             }
+
+            .padding(.top, 32)
           }
-          .padding(.top, 32)
+          .padding(.bottom, 32)
+          .id(lastMessage)
+          .onChange(of: message) { _, _ in
+            proxy.scrollTo(lastMessage, anchor: .bottom)
+          }
         }
       }
 
       HStack {
         TextField("Message..", text: $store.messageText, axis: .vertical)
           .padding(12)
+          .autocorrectionDisabled()
+          .textInputAutocapitalization(.never)
 
         Spacer()
 
         Button(action: {
           store.send(.onTapSendMessage(store.messageText))
+          store.send(.getItemList)
           store.messageText = ""
         }) {
           Text("Send")
@@ -79,6 +97,7 @@ extension ChatPage: View {
     .toolbar(.hidden, for: .navigationBar)
     .onAppear {
       store.send(.getUserInfo(store.userInfo))
+      store.send(.getItemList)
     }
     .onDisappear {
       store.send(.teardown)
