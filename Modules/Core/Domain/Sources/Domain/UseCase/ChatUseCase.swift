@@ -10,4 +10,5 @@ public protocol ChatUseCase {
 
   var getMessage: (Authentication.Me.Response) -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> { get }
 
+  var getRecentMessageList: () -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> { get }
 }

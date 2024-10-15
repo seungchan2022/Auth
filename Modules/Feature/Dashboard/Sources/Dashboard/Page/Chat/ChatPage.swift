@@ -30,7 +30,6 @@ extension ChatPage: View {
           title: (store.userInfo.userName ?? "").uppercased()),
         isShowDivider: true)
       {
-        
         ScrollViewReader { proxy in
           VStack {
             // 채팅 보낼 유저 정보

@@ -75,41 +75,15 @@ extension HomePage: View {
           .scrollIndicators(.hidden)
 
           LazyVStack(spacing: 8) {
-            ForEach(0..<5) { _ in
-              Button(action: { }) {
-                VStack {
-                  HStack {
-                    Image(systemName: "person.circle.fill")
-                      .resizable()
-                      .frame(width: 64, height: 64)
-
-                    VStack(alignment: .leading) {
-                      Text("메시지를 보낸 유저 이름")
-                        .font(.callout)
-                        .fontWeight(.bold)
-
-                      Text(
-                        "메시지 내용 메시지 내용메시지 내용 메시지 내용메시지 내용메시지 내용메시지 내용, 메시지 내용, 메시지 내용, 메시지 내용., 내용 메시지 내용메시지 내용 메시지 내용메시지 내용메시지 내용메시지 내용, 메시지 내용, 메시지 내용, 메시지 내용.,")
-                        .font(.footnote)
-                        .lineLimit(.zero)
-                    }
-
-                    Spacer()
-
-                    HStack {
-                      Text("보낸 날짜")
-
-                      Image(systemName: "chevron.right")
-                        .imageScale(.small)
-                    }
+            ForEach(store.recentMessageList.sorted(by: { $0.date > $1.date })) { item in
+              RecentMessageComponent(
+                viewState: .init(item: item),
+                tapAction: {
+                  if let user = store.userList.first(where: { $0.uid == item.fromId || $0.uid == item.toId }) {
+                    store.send(.routeToChat(user))
                   }
-                  .padding(.horizontal, 12)
-
-                  Divider()
-                    .padding(.leading, 80)
-                }
-                .frame(maxWidth: .infinity)
-              }
+                },
+                store: store)
             }
           }
           .padding(.top, 32)
@@ -119,6 +93,7 @@ extension HomePage: View {
     .toolbar(.hidden, for: .navigationBar)
     .onAppear {
       store.send(.getUserList)
+      store.send(.getRecentMessageList)
     }
     .onDisappear {
       store.send(.teardown)

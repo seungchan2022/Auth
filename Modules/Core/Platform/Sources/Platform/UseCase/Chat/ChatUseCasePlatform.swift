@@ -60,7 +60,7 @@ extension ChatUseCasePlatform: ChatUseCase {
               try? document.data(as: Authentication.Me.Response.self)
             }
 
-            // 현재로그인한 유저는 제왜
+            // 현재로그인한 유저는 제외
             let filteredItemList = itemList.filter { $0.uid != me.uid }
 
             return promise(.success(filteredItemList))
@@ -71,7 +71,7 @@ extension ChatUseCasePlatform: ChatUseCase {
   }
 
   public var sendMessage: (String, String) -> AnyPublisher<Chat.Message.Item, CompositeErrorRepository> {
-    { toId, messageText in
+    { chatPartnerId, messageText in
       Future<Chat.Message.Item, CompositeErrorRepository> { promise in
         guard let me = Auth.auth().currentUser else { return }
 
@@ -79,21 +79,33 @@ extension ChatUseCasePlatform: ChatUseCase {
         let currentUserRef = Firestore.firestore()
           .collection("messages")
           .document(me.uid)
-          .collection(toId)
+          .collection(chatPartnerId)
           .document()
 
         // 받는 사람 참조
         let chatPartnerRef = Firestore.firestore()
           .collection("messages")
-          .document(toId)
+          .document(chatPartnerId)
           .collection(me.uid)
+
+        let recentUserRef = Firestore.firestore()
+          .collection("messages")
+          .document(me.uid)
+          .collection("recentMessages")
+          .document(chatPartnerId)
+
+        let recentPartnerRef = Firestore.firestore()
+          .collection("messages")
+          .document(chatPartnerId)
+          .collection("recentMessages")
+          .document(me.uid)
 
         let messageId = currentUserRef.documentID
 
         let message = Chat.Message.Item(
           id: messageId,
           fromId: me.uid,
-          toId: toId,
+          toId: chatPartnerId,
           messageText: messageText,
           date: Date())
 
@@ -112,6 +124,9 @@ extension ChatUseCasePlatform: ChatUseCase {
             promise(.success(message))
           }
         }
+
+        recentUserRef.setData(messageData)
+        recentPartnerRef.setData(messageData)
       }
       .eraseToAnyPublisher()
     }
@@ -147,6 +162,38 @@ extension ChatUseCasePlatform: ChatUseCase {
       }
 
       // Subject를 Publisher로 변환하여 반환
+      return messageSubject.eraseToAnyPublisher()
+    }
+  }
+
+  public var getRecentMessageList: () -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> {
+    {
+      let messageSubject = PassthroughSubject<[Chat.Message.Item], CompositeErrorRepository>()
+
+      guard let me = Auth.auth().currentUser else {
+        return Fail(error: CompositeErrorRepository.incorrectUser).eraseToAnyPublisher()
+      }
+
+      let query = Firestore.firestore()
+        .collection("messages")
+        .document(me.uid)
+        .collection("recentMessages")
+        .order(by: "date", descending: true)
+
+      query.addSnapshotListener { snapshot, error in
+        if let error = error {
+          messageSubject.send(completion: .failure(.other(error)))
+          return
+        }
+
+        let changes = snapshot?.documentChanges.filter { $0.type == .added || $0.type == .modified } ?? []
+
+        let newMessages = changes.compactMap { try? $0.document.data(as: Chat.Message.Item.self) }
+
+        // 새로운 메시지 전달
+        messageSubject.send(newMessages)
+      }
+
       return messageSubject.eraseToAnyPublisher()
     }
   }

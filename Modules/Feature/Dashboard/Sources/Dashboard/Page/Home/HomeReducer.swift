@@ -3,6 +3,8 @@ import ComposableArchitecture
 import Domain
 import Foundation
 
+// MARK: - HomeReducer
+
 @Reducer
 struct HomeReducer {
 
@@ -25,6 +27,9 @@ struct HomeReducer {
     var userList: [Authentication.Me.Response] = []
     var fetchUserList: FetchState.Data<[Authentication.Me.Response]?> = .init(isLoading: false, value: .none)
 
+    var recentMessageList: [Chat.Message.Item] = []
+    var fetchRecentMessageList: FetchState.Data<[Chat.Message.Item]?> = .init(isLoading: false, value: .none)
+
     init(id: UUID = UUID()) {
       self.id = id
     }
@@ -37,6 +42,9 @@ struct HomeReducer {
     case getUserList
     case fetchUserList(Result<[Authentication.Me.Response], CompositeErrorRepository>)
 
+    case getRecentMessageList
+    case fetchRecentMessageList(Result<[Chat.Message.Item], CompositeErrorRepository>)
+
     case routeToMe
     case routeToNewMessage
     case routeToChat(Authentication.Me.Response)
@@ -47,6 +55,7 @@ struct HomeReducer {
   enum CancelID: Equatable, CaseIterable {
     case teardown
     case requestUserList
+    case requestRecentMessageList
   }
 
   var body: some Reducer<State, Action> {
@@ -77,6 +86,24 @@ struct HomeReducer {
           return .run { await $0(.throwError(error)) }
         }
 
+      case .getRecentMessageList:
+        state.fetchRecentMessageList.isLoading = true
+        return sideEffect
+          .getRecentMessageList()
+          .cancellable(pageID: pageID, id: CancelID.requestRecentMessageList, cancelInFlight: true)
+
+      case .fetchRecentMessageList(let result):
+        state.fetchRecentMessageList.isLoading = false
+        switch result {
+        case .success(let itemList):
+          state.fetchRecentMessageList.value = itemList
+          state.recentMessageList = state.recentMessageList.merge(itemList)
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
       case .routeToMe:
         sideEffect.routeToMe()
         return .none
@@ -101,4 +128,16 @@ struct HomeReducer {
   private let pageID: String
   private let sideEffect: HomeSideEffect
 
+}
+
+extension [Chat.Message.Item] {
+  /// 중복된게 올라옴
+  fileprivate func merge(_ target: Self) -> Self {
+    let new = target.reduce(self) { curr, next in
+      guard !self.contains(where: { $0.id == next.id }) else { return curr }
+      return curr + [next]
+    }
+
+    return new
+  }
 }

@@ -36,6 +36,18 @@ extension HomeSideEffect {
     }
   }
 
+  var getRecentMessageList: () -> Effect<HomeReducer.Action> {
+    {
+      .publisher {
+        useCase.chatUseCase
+          .getRecentMessageList()
+          .receive(on: main)
+          .mapToResult()
+          .map(HomeReducer.Action.fetchRecentMessageList)
+      }
+    }
+  }
+
   var routeToMe: () -> Void {
     {
       navigator.next(
