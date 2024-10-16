@@ -41,6 +41,7 @@ extension ChatPage: View {
                   .clipShape(Circle())
                   .foregroundStyle(.gray)
               }
+              .scaledToFill()
               .frame(width: 120, height: 120)
               .clipShape(Circle())
 
@@ -56,7 +57,7 @@ extension ChatPage: View {
             // 채팅 메시지 내용
             LazyVStack(spacing: 16) {
               ForEach(store.itemList, id: \.id) { item in
-                ChatPage.MessageComponent(viewState: .init(item: item))
+                ChatPage.MessageComponent(viewState: .init(item: item), store: store)
               }
             }
 

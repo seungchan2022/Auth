@@ -88,6 +88,11 @@ struct ChatReducer {
         return .concatenate(
           CancelID.allCases.map { .cancel(pageID: pageID, id: $0) })
 
+      case .getItemList:
+        return sideEffect
+          .getItemList(state.userInfo)
+          .cancellable(pageID: pageID, id: CancelID.requestItemList, cancelInFlight: true)
+
       case .getUserInfo(let user):
         state.fetchUserInfo.isLoading = true
         return sideEffect
@@ -110,11 +115,6 @@ struct ChatReducer {
         case .failure(let error):
           return .run { await $0(.throwError(error)) }
         }
-
-      case .getItemList:
-        return sideEffect
-          .getItemList(state.userInfo)
-          .cancellable(pageID: pageID, id: CancelID.requestItemList, cancelInFlight: true)
 
       case .fetchItemList(let result):
         switch result {

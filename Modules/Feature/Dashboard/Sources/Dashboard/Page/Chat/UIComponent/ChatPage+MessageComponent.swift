@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import DesignSystem
 import Domain
 import FirebaseAuth
@@ -9,6 +10,8 @@ import SwiftUI
 extension ChatPage {
   struct MessageComponent {
     let viewState: ViewState
+
+    @Bindable var store: StoreOf<ChatReducer>
   }
 }
 
@@ -37,10 +40,15 @@ extension ChatPage.MessageComponent: View {
 
       } else {
         HStack(alignment: .bottom, spacing: 8) {
-          Image(systemName: "person.circle.fill")
-            .resizable()
-            .frame(width: 24, height: 24)
-            .clipShape(Circle())
+          RemoteImage(url: store.userInfo.photoURL ?? "") {
+            Image(systemName: "person.circle.fill")
+              .resizable()
+              .frame(width: 24, height: 24)
+              .clipShape(Circle())
+          }
+          .scaledToFill()
+          .frame(width: 24, height: 24)
+          .clipShape(Circle())
 
           Text(viewState.item.messageText)
             .font(.subheadline)

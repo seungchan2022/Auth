@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import DesignSystem
+import FirebaseAuth
 import SwiftUI
 
 // MARK: - HomePage
@@ -8,7 +9,11 @@ struct HomePage {
   @Bindable var store: StoreOf<HomeReducer>
 }
 
-extension HomePage { }
+extension HomePage {
+  private var profileImageURL: String {
+    Auth.auth().currentUser?.photoURL?.absoluteString ?? ""
+  }
+}
 
 // MARK: View
 
@@ -37,25 +42,25 @@ extension HomePage: View {
                       Image(systemName: "person.circle.fill")
                         .resizable()
                         .frame(width: 64, height: 64)
-                        .foregroundStyle(Color(.systemGray))
-
+                        .foregroundStyle(.gray)
                         .overlay(alignment: .bottomTrailing) {
                           Circle()
                             .fill(.white)
                             .frame(width: 18, height: 18)
+
                           Circle()
                             .fill(.green)
                             .frame(width: 12, height: 12)
                         }
                     }
-
+                    .scaledToFill()
                     .frame(width: 64, height: 64)
-                    .foregroundStyle(Color(.systemGray))
-
+                    .clipShape(Circle())
                     .overlay(alignment: .bottomTrailing) {
                       Circle()
                         .fill(.white)
                         .frame(width: 18, height: 18)
+
                       Circle()
                         .fill(.green)
                         .frame(width: 12, height: 12)

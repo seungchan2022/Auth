@@ -25,9 +25,17 @@ extension HomePage.RecentMessageComponent: View {
     Button(action: { tapAction() }) {
       VStack {
         HStack {
-          Image(systemName: "person.circle.fill")
-            .resizable()
+          if let user = store.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
+            RemoteImage(url: user.photoURL ?? "") {
+              Image(systemName: "person.circle.fill")
+                .resizable()
+                .frame(width: 64, height: 64)
+                .clipShape(Circle())
+            }
+            .scaledToFill()
             .frame(width: 64, height: 64)
+            .clipShape(Circle())
+          }
 
           VStack(alignment: .leading) {
             if let user = store.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
