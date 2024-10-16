@@ -90,12 +90,23 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
             withIDToken: idToken,
             accessToken: user.accessToken.tokenString)
 
-          Auth.auth().signIn(with: credential) { _, error in
-            if let error = error {
-              return promise(.failure(.other(error)))
+          Auth.auth().signIn(with: credential) { result, error in
+            guard let error else {
+              Task {
+                do {
+                  if let user = result?.user {
+                    try await uploadUserData(
+                      id: user.uid,
+                      email: user.email ?? "",
+                      userName: user.displayName ?? "")
+                  }
+                } catch {
+                  return promise(.failure(.other(error)))
+                }
+              }
+              return promise(.success(Void()))
             }
-
-            return promise(.success(Void()))
+            return promise(.failure(.other(error)))
           }
         }
       }
