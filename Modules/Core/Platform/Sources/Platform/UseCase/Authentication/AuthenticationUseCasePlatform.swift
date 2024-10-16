@@ -4,6 +4,7 @@ import Domain
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 import GoogleSignIn
 
 // MARK: - AuthenticationUseCasePlatform
@@ -150,6 +151,61 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
           }
 
           return promise(.failure(.other(error)))
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
+  public var updateProfileImage: (Data) -> AnyPublisher<Void, CompositeErrorRepository> {
+    { imageData in
+      Future<Void, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return }
+
+        // 프로필 이미지를 넣을 Storage 참조 생성
+        let storageRef = Storage.storage().reference()
+        let profileImageRef = storageRef.child("profile_images/\(me.uid).jpg")
+
+        // 이미지 업로드
+        profileImageRef.putData(imageData, metadata: .none) { _, error in
+          if let error = error {
+            return promise(.failure(.other(error)))
+          }
+
+          // 업로드된 이미지 가져오기
+          profileImageRef.downloadURL { url, error in
+            if let error = error {
+              return promise(.failure(.other(error)))
+            }
+
+            // 이미지 업로드하는 해당 이미지의 url을 가져옴
+            guard let url = url else {
+              return promise(.failure(.invalidTypeCasting))
+            }
+
+            // store에서 user에 대해서 정보를 저장하기 위해 이미지 url에 대한 string을 가져옴
+            let photoURLString = url.absoluteString
+
+            Firestore.firestore()
+              .collection("users")
+              .document(me.uid)
+              .setData(["photoURL": photoURLString], merge: true) { error in
+                if let error = error {
+                  return promise(.failure(.other(error)))
+                }
+
+                let changeRequest = me.createProfileChangeRequest()
+                changeRequest.photoURL = url
+
+                changeRequest.commitChanges { error in
+                  if let error = error {
+                    return promise(.failure(.other(error)))
+                  }
+
+                  return promise(.success(Void()))
+                }
+              }
+          }
         }
       }
       .eraseToAnyPublisher()

@@ -36,6 +36,19 @@ extension MeSideEffect {
     }
   }
 
+  var updateProfileImage: (Data) -> Effect<MeReducer.Action> {
+    { imageData in
+      .publisher {
+        useCase.authenticationUseCase
+          .updateProfileImage(imageData)
+          .map { _ in true }
+          .receive(on: main)
+          .mapToResult()
+          .map(MeReducer.Action.fetchUpdateProfileImage)
+      }
+    }
+  }
+
   var routeToBack: () -> Void {
     {
       navigator.back(isAnimated: true)

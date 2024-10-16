@@ -24,11 +24,13 @@ struct MeReducer {
   struct State: Equatable, Identifiable {
     let id: UUID
 
+    var selectedImage: PhotosPickerItem?
+    var isShowPhotsPicker = false
+
     var user: Authentication.Me.Response = .init(uid: "", userName: "", email: "", photoURL: "")
     var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
 
-    var selectedImage: PhotosPickerItem?
-    var profileImage: Image?
+    var fetchUpdateProfileImage: FetchState.Data<Bool?> = .init(isLoading: false, value: .none)
 
     init(id: UUID = UUID()) {
       self.id = id
@@ -40,8 +42,11 @@ struct MeReducer {
     case teardown
 
     case getUser
+    case updateProfileImage(Data)
 
     case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
+
+    case fetchUpdateProfileImage(Result<Bool?, CompositeErrorRepository>)
 
     case routeToBack
     case routeToUpdateAuth
@@ -53,6 +58,7 @@ struct MeReducer {
     case teardown
     case requestUser
     case requestSignOut
+    case requestUpdateProfileImage
   }
 
   var body: some Reducer<State, Action> {
@@ -72,11 +78,29 @@ struct MeReducer {
           .getUser()
           .cancellable(pageID: pageID, id: CancelID.requestUser, cancelInFlight: true)
 
+      case .updateProfileImage(let imageData):
+        state.fetchUpdateProfileImage.isLoading = true
+        return sideEffect
+          .updateProfileImage(imageData)
+          .cancellable(pageID: pageID, id: CancelID.requestUpdateProfileImage, cancelInFlight: true)
+
       case .fetchUser(let result):
         state.fetchUser.isLoading = false
         switch result {
         case .success(let user):
           state.user = user ?? .init(uid: "", userName: "", email: "", photoURL: "")
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchUpdateProfileImage(let result):
+        state.fetchUpdateProfileImage.isLoading = false
+        switch result {
+        case .success:
+          sideEffect.routeToBack()
+          sideEffect.useCase.toastViewModel.send(message: "프로필 이미지 변경")
           return .none
 
         case .failure(let error):
