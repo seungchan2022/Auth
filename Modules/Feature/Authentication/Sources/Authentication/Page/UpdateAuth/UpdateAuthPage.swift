@@ -34,67 +34,22 @@ extension UpdateAuthPage: View {
           ]),
         isShowDivider: true)
       {
-        VStack(spacing: 16) {
-          HStack {
-            VStack(alignment: .leading, spacing: 16) {
-              Text("이메일")
-
-              Text(store.user.email ?? "")
-            }
-
-            Spacer()
-          }
-          .padding(.horizontal, 16)
-
-          Divider()
-
-          HStack {
-            VStack(alignment: .leading, spacing: 16) {
-              Text("이름")
-              Text(userName)
-            }
-
-            Spacer()
-
-            Button(action: {
-              store.updateUserName = ""
-              store.isShowUpdateUserNameAlert = true
-            }) {
-              Text("변경")
-            }
-          }
-          .padding(.horizontal, 16)
-
-          Divider()
-
-          HStack {
-            VStack(alignment: .leading, spacing: 16) {
-              Text("비밀번호")
-              Text("************")
-            }
-
-            Spacer()
-
-            Button(action: { store.send(.routeToUpdatePassword) }) {
-              Text("변경")
-            }
-          }
-          .padding(.horizontal, 16)
-
-          Divider()
-        }
+        ItemComponent(
+          viewState: .init(user: store.user),
+          nameTapAction: {
+            store.updateUserName = ""
+            store.isShowUpdateUserNameAlert = true
+          },
+          passwordTapAction: {
+            store.send(.routeToUpdatePassword)
+          },
+          deleteTapAction: {
+            store.passwordText = ""
+            store.isShowDeleteUserAlert = true
+          })
       }
     }
-    .overlay(alignment: .bottom) {
-      Button(action: {
-        store.passwordText = ""
-        store.isShowDeleteUserAlert = true
-      }) {
-        Text("계정 탈퇴")
-      }
-      .padding(.bottom, 64)
-      .padding(.top, 32)
-    }
+
     .alert(
       "이름을 변경하시겠습니까?",
       isPresented: $store.isShowUpdateUserNameAlert)

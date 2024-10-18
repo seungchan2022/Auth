@@ -33,31 +33,16 @@ extension ChatPage: View {
         ScrollViewReader { proxy in
           VStack {
             // 채팅 보낼 유저 정보
-            VStack(alignment: .center, spacing: 8) {
-              RemoteImage(url: store.userInfo.photoURL ?? "") {
-                Image(systemName: "person.circle.fill")
-                  .resizable()
-                  .frame(width: 120, height: 120)
-                  .clipShape(Circle())
-                  .foregroundStyle(.gray)
-              }
-              .scaledToFill()
-              .frame(width: 120, height: 120)
-              .clipShape(Circle())
-
-              Text(store.userInfo.userName ?? "")
-                .font(.title3)
-                .fontWeight(.semibold)
-
-              Text("Messenger")
-                .font(.subheadline)
-                .foregroundStyle(.gray)
-            }
+            ChatPartnerComponent(viewState: .init(user: store.userInfo))
 
             // 채팅 메시지 내용
             LazyVStack(spacing: 16) {
               ForEach(store.itemList, id: \.id) { item in
-                ChatPage.MessageComponent(viewState: .init(item: item), store: store)
+
+                MessageComponent(
+                  viewState: .init(
+                    item: item,
+                    user: store.userInfo))
               }
             }
 

@@ -3,9 +3,9 @@ import DesignSystem
 import Functor
 import SwiftUI
 
-// MARK: - Focus
+// MARK: - SignUpFocus
 
-private enum Focus {
+enum SignUpFocus {
   case email
   case password
   case confirmPassword
@@ -16,7 +16,7 @@ private enum Focus {
 struct SignUpPage {
   @Bindable var store: StoreOf<SignUpReducer>
 
-  @FocusState private var isFocus: Focus?
+  @FocusState private var isFocused: SignUpFocus?
 
 }
 
@@ -44,116 +44,47 @@ extension SignUpPage: View {
         isShowDivider: true)
       {
         VStack(spacing: 32) {
-          VStack(alignment: .leading, spacing: 16) {
-            Text("이메일 주소")
-
-            TextField(
-              "이메일",
-              text: $store.emailText)
-              .textInputAutocapitalization(.never)
-              .autocorrectionDisabled(true)
-              .onChange(of: store.emailText) { _, new in
-                store.isValidEmail = Validator.validateEmail(email: new)
-              }
-
-            Divider()
-              .overlay(!store.isValidEmail ? .red : isFocus == .email ? .blue : .clear)
-
-            if !store.isValidEmail {
-              HStack {
-                Text("유효한 이메일 주소가 아닙니다.")
-                  .font(.footnote)
-                  .foregroundStyle(.red)
-
-                Spacer()
-              }
+          TextFieldComponent(
+            viewState: .init(),
+            title: "이메일 주소",
+            placeholder: "이메일",
+            isSecure: false,
+            errorMessage: store.isValidEmail ? .none : "유효한 이메일 주소가 아닙니다.",
+            toggleAction: .none,
+            isFocused: $isFocused,
+            focusType: .email,
+            text: $store.emailText)
+            .onChange(of: store.emailText) { _, new in
+              store.isValidEmail = Validator.validateEmail(email: new)
             }
-          }
-          .focused($isFocus, equals: .email)
 
-          VStack(alignment: .leading, spacing: 16) {
-            Text("비밀번호")
-
-            Group {
-              if store.isShowPassword {
-                TextField(
-                  "비밀번호",
-                  text: $store.passwordText)
-              } else {
-                SecureField(
-                  "비밀번호",
-                  text: $store.passwordText)
-              }
-            }
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled(true)
+          TextFieldComponent(
+            viewState: .init(),
+            title: "비밀번호",
+            placeholder: "비밀번호",
+            isSecure: !store.isShowPassword,
+            errorMessage: store.isValidPassword ? .none : "영어대문자, 숫자, 특수문자를 모두 사용하여 8 ~ 20자리로 설정해주세요.",
+            toggleAction: { store.isShowPassword.toggle() },
+            isFocused: $isFocused,
+            focusType: .password,
+            text: $store.passwordText)
             .onChange(of: store.passwordText) { _, new in
               store.isValidPassword = Validator.validatePassword(password: new)
             }
 
-            Divider()
-              .overlay(!store.isValidPassword ? .red : isFocus == .password ? .blue : .clear)
-
-            if !store.isValidPassword {
-              HStack {
-                Text("영어대문자, 숫자, 특수문자를 모두 사용하여 8 ~ 20자리로 설정해주세요.")
-                  .font(.footnote)
-                  .foregroundStyle(.red)
-
-                Spacer()
-              }
-            }
-          }
-          .focused($isFocus, equals: .password)
-          .overlay(alignment: .trailing) {
-            Button(action: { store.isShowPassword.toggle() }) {
-              Image(systemName: store.isShowPassword ? "eye" : "eye.slash")
-                .foregroundStyle(.black)
-                .padding(.trailing, 12)
-            }
-          }
-
-          VStack(alignment: .leading, spacing: 16) {
-            Text("비밀번호 확인")
-
-            Group {
-              if store.isShowConfirmPassword {
-                TextField(
-                  "비밀번호 확인",
-                  text: $store.confirmPasswordText)
-              } else {
-                SecureField(
-                  "비밀번호 확인",
-                  text: $store.confirmPasswordText)
-              }
-            }
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled(true)
+          TextFieldComponent(
+            viewState: .init(),
+            title: "비밀번호 확인",
+            placeholder: "비밀번호 확인",
+            isSecure: !store.isShowConfirmPassword,
+            errorMessage: store.isValidConfirmPassword ? .none : "비밀번호가 일치하지 않습니다.",
+            toggleAction: { store.isShowConfirmPassword.toggle() },
+            isFocused: $isFocused,
+            focusType: .confirmPassword,
+            text: $store.confirmPasswordText)
             .onChange(of: store.confirmPasswordText) { _, new in
               store.isValidConfirmPassword = isValidConfirmPassword(text: new)
             }
-
-            Divider()
-              .overlay(!store.isValidConfirmPassword ? .red : isFocus == .confirmPassword ? .blue : .clear)
-
-            if !store.isValidConfirmPassword {
-              HStack {
-                Text("비밀번호가 일치하지 않습니다.")
-                  .font(.footnote)
-                  .foregroundStyle(.red)
-
-                Spacer()
-              }
-            }
-          }
-          .focused($isFocus, equals: .confirmPassword)
-          .overlay(alignment: .trailing) {
-            Button(action: { store.isShowConfirmPassword.toggle() }) {
-              Image(systemName: store.isShowConfirmPassword ? "eye" : "eye.slash")
-                .foregroundStyle(.black)
-                .padding(.trailing, 12)
-            }
-          }
 
           Button(action: { store.send(.onTapSignUp) }) {
             Text("회원 가입")
@@ -171,12 +102,10 @@ extension SignUpPage: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .onAppear {
-      isFocus = .email
+      isFocused = .email
     }
     .onDisappear {
       store.send(.teardown)
     }
   }
 }
-
-// MARK: - Validator

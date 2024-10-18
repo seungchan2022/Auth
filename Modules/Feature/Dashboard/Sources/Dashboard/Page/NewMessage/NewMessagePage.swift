@@ -40,31 +40,9 @@ extension NewMessagePage: View {
 
           LazyVStack(spacing: 8) {
             ForEach(store.userList, id: \.uid) { user in
-              Button(action: { store.send(.routeToChat(user)) }) {
-                VStack {
-                  HStack {
-                    RemoteImage(url: user.photoURL ?? "") {
-                      Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                    }
-                    .scaledToFill()
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
-
-                    Text(user.userName ?? "")
-                      .font(.callout)
-                      .fontWeight(.bold)
-
-                    Spacer()
-                  }
-                  .padding(.horizontal, 12)
-
-                  Divider()
-                    .padding(.leading, 64)
-                }
-              }
+              UserListComponent(
+                viewState: .init(user: user),
+                tapAction: { store.send(.routeToChat($0)) })
             }
           }
         }

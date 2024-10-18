@@ -10,8 +10,6 @@ import SwiftUI
 extension ChatPage {
   struct MessageComponent {
     let viewState: ViewState
-
-    @Bindable var store: StoreOf<ChatReducer>
   }
 }
 
@@ -40,7 +38,7 @@ extension ChatPage.MessageComponent: View {
 
       } else {
         HStack(alignment: .bottom, spacing: 8) {
-          RemoteImage(url: store.userInfo.photoURL ?? "") {
+          RemoteImage(url: viewState.user.photoURL ?? "") {
             Image(systemName: "person.circle.fill")
               .resizable()
               .frame(width: 24, height: 24)
@@ -77,9 +75,14 @@ extension ChatPage.MessageComponent {
   struct ViewState: Equatable {
     let isFromCurrentUser: Bool
     let item: Chat.Message.Item
+    let user: Authentication.Me.Response
 
-    init(item: Chat.Message.Item) {
+    init(
+      item: Chat.Message.Item,
+      user: Authentication.Me.Response)
+    {
       self.item = item
+      self.user = user
       isFromCurrentUser = item.fromId == Auth.auth().currentUser?.uid
     }
 

@@ -7,9 +7,9 @@ import FirebaseAuth
 import GoogleSignInSwift
 import SwiftUI
 
-// MARK: - Focus
+// MARK: - SignInFocus
 
-private enum Focus {
+enum SignInFocus {
   case email
   case password
 }
@@ -19,7 +19,7 @@ private enum Focus {
 struct SignInPage {
   @Bindable var store: StoreOf<SignInReducer>
 
-  @FocusState private var isFocus: Focus?
+  @FocusState private var isFocused: SignInFocus?
 
   @Environment(\.colorScheme) var colorScheme
 
@@ -90,48 +90,25 @@ extension SignInPage: View {
         isShowDivider: true)
       {
         VStack(spacing: 32) {
-          VStack(alignment: .leading, spacing: 16) {
-            Text("이메일 주소")
+          TextFieldComponent(
+            viewState: .init(),
+            title: "이메일 주소",
+            placeholder: "이메일",
+            isSecure: false,
+            toggleAction: .none,
+            isFocused: $isFocused,
+            focusType: .email,
+            text: $store.emailText)
 
-            TextField(
-              "이메일",
-              text: $store.emailText)
-              .textInputAutocapitalization(.never)
-              .autocorrectionDisabled(true)
-
-            Divider()
-              .overlay(isFocus == .email ? .blue : .clear)
-          }
-          .focused($isFocus, equals: .email)
-
-          VStack(alignment: .leading, spacing: 16) {
-            Text("비밀번호")
-
-            Group {
-              if store.isShowPassword {
-                TextField(
-                  "비밀번호",
-                  text: $store.passwordText)
-              } else {
-                SecureField(
-                  "비밀번호",
-                  text: $store.passwordText)
-              }
-            }
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled(true)
-
-            Divider()
-              .overlay(isFocus == .password ? .blue : .clear)
-          }
-          .focused($isFocus, equals: .password)
-          .overlay(alignment: .trailing) {
-            Button(action: { store.isShowPassword.toggle() }) {
-              Image(systemName: store.isShowPassword ? "eye" : "eye.slash")
-                .foregroundStyle(.black)
-                .padding(.trailing, 12)
-            }
-          }
+          TextFieldComponent(
+            viewState: .init(),
+            title: "비밀번호",
+            placeholder: "비밀번호",
+            isSecure: !store.isShowPassword,
+            toggleAction: { store.isShowPassword.toggle() },
+            isFocused: $isFocused,
+            focusType: .password,
+            text: $store.passwordText)
 
           Button(action: { store.send(.onTapSignIn) }) {
             Text("로그인")
@@ -250,7 +227,7 @@ extension SignInPage: View {
       })
     .toolbar(.hidden, for: .navigationBar)
     .onAppear {
-      isFocus = .email
+      isFocused = .email
     }
     .onDisappear {
       store.send(.teardown)

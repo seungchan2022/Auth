@@ -11,8 +11,6 @@ extension HomePage {
   struct RecentMessageComponent {
     let viewState: ViewState
     let tapAction: () -> Void
-    @Bindable var store: StoreOf<HomeReducer>
-
   }
 }
 
@@ -25,7 +23,7 @@ extension HomePage.RecentMessageComponent: View {
     Button(action: { tapAction() }) {
       VStack {
         HStack {
-          if let user = store.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
+          if let user = viewState.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
             RemoteImage(url: user.photoURL ?? "") {
               Image(systemName: "person.circle.fill")
                 .resizable()
@@ -38,7 +36,7 @@ extension HomePage.RecentMessageComponent: View {
           }
 
           VStack(alignment: .leading) {
-            if let user = store.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
+            if let user = viewState.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
               Text(user.userName ?? "")
                 .font(.callout)
                 .fontWeight(.bold)
@@ -73,6 +71,7 @@ extension HomePage.RecentMessageComponent: View {
 extension HomePage.RecentMessageComponent {
   struct ViewState: Equatable {
     let item: Chat.Message.Item
+    let userList: [Authentication.Me.Response]
   }
 }
 
@@ -105,5 +104,4 @@ extension Date {
     formatter.dateFormat = "MM/dd/yy"
     return formatter
   }
-
 }
