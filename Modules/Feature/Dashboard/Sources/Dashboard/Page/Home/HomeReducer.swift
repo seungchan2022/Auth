@@ -97,7 +97,7 @@ struct HomeReducer {
         switch result {
         case .success(let itemList):
           state.fetchRecentMessageList.value = itemList
-          state.recentMessageList = state.recentMessageList.merge(itemList)
+          state.recentMessageList  = state.recentMessageList.replace(itemList)
           return .none
 
         case .failure(let error):
@@ -139,5 +139,27 @@ extension [Chat.Message.Item] {
     }
 
     return new
+  }
+}
+
+extension [Chat.Message.Item] {
+  /// 같은 유저와의 메시지를 교체하는 로직
+  fileprivate func replace(_ target: Self) -> Self {
+    // reduce를 사용하여 기존 메시지를 교체하거나 추가하는 새로운 배열을 생성
+    return target.reduce(self) { curr, next in
+      // 기존 메시지를 교체할 조건에 맞는 메시지를 찾음
+      let messageList = curr.filter {
+        ($0.fromId == next.fromId && $0.toId == next.toId) ||
+        ($0.fromId == next.toId && $0.toId == next.fromId)
+      }
+
+      // 기존 메시지가 없으면 새로운 메시지를 추가
+      guard let message = messageList.first else {
+        return curr + [next]
+      }
+
+      // 기존 메시지를 교체하고, 기존 메시지가 있으면 교체
+      return curr.map { $0.id == message.id ? next : $0 }
+    }
   }
 }
