@@ -14,7 +14,20 @@ extension HomePage {
   }
 }
 
-extension HomePage.RecentMessageComponent { }
+extension HomePage.RecentMessageComponent {
+  private var isImage: Bool {
+    // 이미지 확장자 목록 정의
+    let imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp"]
+    // url이면서 이미지 확장자에 부합하는지 확인
+    guard
+      let url = URL(string: viewState.item.messageText),
+      imageExtensions.contains(url.pathExtension.lowercased())
+    else {
+      return false
+    }
+    return true
+  }
+}
 
 // MARK: - HomePage.RecentMessageComponent + View
 
@@ -42,9 +55,15 @@ extension HomePage.RecentMessageComponent: View {
                 .fontWeight(.bold)
             }
 
-            Text(viewState.item.messageText)
-              .font(.footnote)
-              .lineLimit(.zero)
+            if isImage {
+              Text("사진")
+                .font(.footnote)
+                .lineLimit(.zero)
+            } else {
+              Text(viewState.item.messageText)
+                .font(.footnote)
+                .lineLimit(.zero)
+            }
           }
 
           Spacer()

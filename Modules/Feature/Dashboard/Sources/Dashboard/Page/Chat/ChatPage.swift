@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import DesignSystem
 import FirebaseAuth
+import PhotosUI
 import SwiftUI
 
 // MARK: - ChatPage
@@ -57,26 +58,47 @@ extension ChatPage: View {
       }
 
       HStack {
-        TextField("Message..", text: $store.messageText, axis: .vertical)
-          .padding(12)
-          .autocorrectionDisabled()
-          .textInputAutocapitalization(.never)
-
-        Spacer()
-
-        Button(action: {
-          store.send(.onTapSendMessage(store.messageText))
-          store.send(.getItemList)
-          store.messageText = ""
-        }) {
-          Text("Send")
-            .padding(.trailing, 8)
+        Button(action: { store.isShowPhotosPicker = true }) {
+          Image(systemName: "photo")
+            .renderingMode(.template)
+            .imageScale(.large)
         }
-        .disabled(
-          store.messageText.isEmpty ? true : false)
+        .photosPicker(
+          isPresented: $store.isShowPhotosPicker,
+          selection: $store.selectedImage)
+        .onChange(of: store.selectedImage) { _, new in
+          Task {
+            guard let item = new else { return }
+            guard let imageData = try? await item.loadTransferable(type: Data.self) else { return }
+
+            store.send(.sendImageMessage(imageData))
+            store.selectedImage = .none
+          }
+        }
+
+        HStack {
+          TextField("Message..", text: $store.messageText, axis: .vertical)
+            .padding(12)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+
+          Spacer()
+
+          Button(action: {
+            store.send(.onTapSendMessage(store.messageText))
+            store.send(.getItemList)
+            store.messageText = ""
+          }) {
+            Text("Send")
+              .padding(.trailing, 8)
+          }
+          .disabled(
+            store.messageText.isEmpty ? true : false)
+        }
+        .background(Color(.systemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, 8)
       }
-      .background(Color(.systemGroupedBackground))
-      .clipShape(RoundedRectangle(cornerRadius: 8))
       .padding(.horizontal, 12)
     }
     .toolbar(.hidden, for: .navigationBar)

@@ -35,13 +35,25 @@ extension ChatSideEffect {
   }
 
   var sendMessage: (String, String) -> Effect<ChatReducer.Action> {
-    { toId, text in
+    { chatPartner, text in
       .publisher {
         useCase.chatUseCase
-          .sendMessage(toId, text)
+          .sendMessage(chatPartner, text)
           .receive(on: main)
           .mapToResult()
           .map(ChatReducer.Action.fetchSendMessage)
+      }
+    }
+  }
+
+  var sendImageMessage: (String, Data) -> Effect<ChatReducer.Action> {
+    { chatPartner, imageData in
+      .publisher {
+        useCase.chatUseCase
+          .sendImageMessage(chatPartner, imageData)
+          .receive(on: main)
+          .mapToResult()
+          .map(ChatReducer.Action.fetchSendImageMessage)
       }
     }
   }

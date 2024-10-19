@@ -8,6 +8,8 @@ public protocol ChatUseCase {
 
   var sendMessage: (String, String) -> AnyPublisher<Chat.Message.Item, CompositeErrorRepository> { get }
 
+  var sendImageMessage: (String, Data) -> AnyPublisher<Chat.Message.Item, CompositeErrorRepository> { get }
+
   var getMessage: (Authentication.Me.Response) -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> { get }
 
   var getRecentMessageList: () -> AnyPublisher<[Chat.Message.Item], CompositeErrorRepository> { get }

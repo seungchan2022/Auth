@@ -4,6 +4,7 @@ import Domain
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 import Foundation
 
 // MARK: - ChatUseCasePlatform
@@ -127,6 +128,93 @@ extension ChatUseCasePlatform: ChatUseCase {
 
         recentUserRef.setData(messageData)
         recentPartnerRef.setData(messageData)
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
+  public var sendImageMessage: (String, Data) -> AnyPublisher<Chat.Message.Item, CompositeErrorRepository> {
+    { chatPartnerId, imageData in
+      Future<Chat.Message.Item, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return }
+
+        // 이미지를 넣을 Storage 참조 생성
+        let storageRef = Storage.storage().reference()
+        let imageRef = storageRef.child("images/\(me.uid).jpg")
+
+        imageRef.putData(imageData, metadata: .none) { _, error in
+          if let error = error {
+            return promise(.failure(.other(error)))
+          }
+
+          imageRef.downloadURL { url, error in
+            if let error = error {
+              return promise(.failure(.other(error)))
+            }
+
+            guard let url = url else {
+              return promise(.failure(.invalidTypeCasting))
+            }
+
+            let imageURLString = url.absoluteString
+
+            // 이 위에는 이미지를 Storage에 추가하고, 이미지에 대한 string값을 받아옴
+            // 아래에서는 snedMessage관련해서 message아이템에 대해서 세팅
+
+            // 보내는 사람 참조
+            let currentUserRef = Firestore.firestore()
+              .collection("messages")
+              .document(me.uid)
+              .collection(chatPartnerId)
+              .document()
+
+            // 받는 사람 참조
+            let chatPartnerRef = Firestore.firestore()
+              .collection("messages")
+              .document(chatPartnerId)
+              .collection(me.uid)
+
+            let recentUserRef = Firestore.firestore()
+              .collection("messages")
+              .document(me.uid)
+              .collection("recentMessages")
+              .document(chatPartnerId)
+
+            let recentPartnerRef = Firestore.firestore()
+              .collection("messages")
+              .document(chatPartnerId)
+              .collection("recentMessages")
+              .document(me.uid)
+
+            let messageId = currentUserRef.documentID
+
+            let message = Chat.Message.Item(
+              id: messageId,
+              fromId: me.uid,
+              toId: chatPartnerId,
+              messageText: imageURLString,
+              date: Date())
+
+            guard let messageData = try? Firestore.Encoder().encode(message) else { return }
+
+            currentUserRef.setData(messageData) { error in
+              if let error = error {
+                return promise(.failure(.other(error)))
+              }
+
+              chatPartnerRef.document(messageId).setData(messageData) { error in
+                if let error = error {
+                  return promise(.failure(.other(error)))
+                }
+
+                return promise(.success(message))
+              }
+            }
+
+            recentUserRef.setData(messageData)
+            recentPartnerRef.setData(messageData)
+          }
+        }
       }
       .eraseToAnyPublisher()
     }

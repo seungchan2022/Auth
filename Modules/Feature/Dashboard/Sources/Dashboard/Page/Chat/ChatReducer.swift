@@ -2,6 +2,8 @@ import Architecture
 import ComposableArchitecture
 import Domain
 import Foundation
+import PhotosUI
+import SwiftUI
 
 // MARK: - ChatReducer
 
@@ -37,6 +39,9 @@ struct ChatReducer {
 
     let id: UUID
 
+    var selectedImage: PhotosPickerItem?
+    var isShowPhotosPicker = false
+
     let userInfo: Authentication.Me.Response
 
     var messageText = ""
@@ -44,6 +49,8 @@ struct ChatReducer {
     var itemList: [Chat.Message.Item] = []
 
     var fetchSendMessage: FetchState.Data<Chat.Message.Item?> = .init(isLoading: false, value: .none)
+
+    var fetchSendImageMessage: FetchState.Data<Chat.Message.Item?> = .init(isLoading: false, value: .none)
 
     var fetchItemList: FetchState.Data<[Chat.Message.Item]?> = .init(isLoading: false, value: .none)
 
@@ -60,6 +67,9 @@ struct ChatReducer {
     case onTapSendMessage(String)
     case fetchSendMessage(Result<Chat.Message.Item, CompositeErrorRepository>)
 
+    case sendImageMessage(Data)
+    case fetchSendImageMessage(Result<Chat.Message.Item, CompositeErrorRepository>)
+
     case getItemList
     case fetchItemList(Result<[Chat.Message.Item], CompositeErrorRepository>)
 
@@ -75,6 +85,7 @@ struct ChatReducer {
     case requestUserInfo
     case requestSendMessage
     case requestItemList
+    case requestSendImageMessage
   }
 
   var body: some Reducer<State, Action> {
@@ -104,6 +115,23 @@ struct ChatReducer {
         return sideEffect
           .sendMessage(state.userInfo.uid, text)
           .cancellable(pageID: pageID, id: CancelID.requestSendMessage, cancelInFlight: true)
+
+      case .sendImageMessage(let imageData):
+        state.fetchSendImageMessage.isLoading = true
+        return sideEffect
+          .sendImageMessage(state.userInfo.uid, imageData)
+          .cancellable(pageID: pageID, id: CancelID.requestSendImageMessage, cancelInFlight: true)
+
+      case .fetchSendImageMessage(let result):
+        state.fetchSendImageMessage.isLoading = false
+        switch result {
+        case .success(let item):
+          state.fetchSendImageMessage.value = item
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
 
       case .fetchSendMessage(let result):
         state.fetchSendMessage.isLoading = false
