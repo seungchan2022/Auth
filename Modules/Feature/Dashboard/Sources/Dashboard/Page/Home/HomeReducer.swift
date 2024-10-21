@@ -30,6 +30,8 @@ struct HomeReducer {
     var recentMessageList: [Chat.Message.Item] = []
     var fetchRecentMessageList: FetchState.Data<[Chat.Message.Item]?> = .init(isLoading: false, value: .none)
 
+    var fetchDeleteMessage: FetchState.Data<String?> = .init(isLoading: false, value: .none)
+
     init(id: UUID = UUID()) {
       self.id = id
     }
@@ -45,6 +47,9 @@ struct HomeReducer {
     case getRecentMessageList
     case fetchRecentMessageList(Result<[Chat.Message.Item], CompositeErrorRepository>)
 
+    case onTapDeleteMessage(String)
+    case fetchDeleteMessage(Result<String, CompositeErrorRepository>)
+
     case routeToMe
     case routeToNewMessage
     case routeToChat(Authentication.Me.Response)
@@ -56,6 +61,7 @@ struct HomeReducer {
     case teardown
     case requestUserList
     case requestRecentMessageList
+    case requestDeleteMessage
   }
 
   var body: some Reducer<State, Action> {
@@ -98,6 +104,24 @@ struct HomeReducer {
         case .success(let itemList):
           state.fetchRecentMessageList.value = itemList
           state.recentMessageList = state.recentMessageList.replace(itemList)
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .onTapDeleteMessage(let chatPartnerId):
+        state.fetchDeleteMessage.isLoading = true
+        return sideEffect
+          .deleteMessage(chatPartnerId)
+          .cancellable(pageID: pageID, id: CancelID.requestDeleteMessage, cancelInFlight: true)
+
+      case .fetchDeleteMessage(let result):
+        state.fetchDeleteMessage.isLoading = false
+        switch result {
+        case .success(let item):
+          state.fetchDeleteMessage.value = item
+          state.recentMessageList = state.recentMessageList.filter { $0.toId != item && $0.fromId != item }
           return .none
 
         case .failure(let error):

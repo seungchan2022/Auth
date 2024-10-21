@@ -285,4 +285,28 @@ extension ChatUseCasePlatform: ChatUseCase {
       return messageSubject.eraseToAnyPublisher()
     }
   }
+
+  public var deleteMessage: (String) -> AnyPublisher<String, CompositeErrorRepository> {
+    { chatPartnerId in
+      Future<String, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return }
+
+        let recentMessageRef = Firestore.firestore()
+          .collection("messages")
+          .document(me.uid)
+          .collection("recentMessages")
+          .document(chatPartnerId)
+
+        Task {
+          do {
+            try await recentMessageRef.delete()
+            return promise(.success(chatPartnerId))
+          } catch {
+            return promise(.failure(.other(error)))
+          }
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
 }

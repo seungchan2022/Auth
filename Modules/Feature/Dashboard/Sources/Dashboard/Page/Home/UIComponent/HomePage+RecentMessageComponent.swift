@@ -11,6 +11,10 @@ extension HomePage {
   struct RecentMessageComponent {
     let viewState: ViewState
     let tapAction: () -> Void
+    let swipeAction: (String?) -> Void
+    let deleteAction: (String) -> Void
+
+    private let distance: CGFloat = 30
   }
 }
 
@@ -33,10 +37,25 @@ extension HomePage.RecentMessageComponent {
 
 extension HomePage.RecentMessageComponent: View {
   var body: some View {
-    Button(action: { tapAction() }) {
+    ZStack {
+      Rectangle()
+        .fill(viewState.isEdit ? Color.red : Color.white)
+
+        .overlay(alignment: .trailing) {
+          Button(action: { deleteAction(viewState.chatPartnerId) }) {
+            Image(systemName: "trash")
+              .resizable()
+          }
+          .frame(width: 30, height: 30)
+          .padding(.horizontal, 16)
+          .tint(.white)
+        }
       VStack {
         HStack {
-          if let user = viewState.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
+          if
+            let user = viewState.userList
+              .first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId })
+          {
             RemoteImage(url: user.photoURL ?? "") {
               Image(systemName: "person.circle.fill")
                 .resizable()
@@ -49,7 +68,10 @@ extension HomePage.RecentMessageComponent: View {
           }
 
           VStack(alignment: .leading) {
-            if let user = viewState.userList.first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId }) {
+            if
+              let user = viewState.userList
+                .first(where: { $0.uid == viewState.item.fromId || $0.uid == viewState.item.toId })
+            {
               Text(user.userName ?? "")
                 .font(.callout)
                 .fontWeight(.bold)
@@ -80,17 +102,54 @@ extension HomePage.RecentMessageComponent: View {
         Divider()
           .padding(.leading, 80)
       }
-      .frame(maxWidth: .infinity)
+      .onTapGesture {
+        swipeAction(.none)
+        tapAction()
+      }
+      .frame(minWidth: .zero, maxWidth: .infinity, alignment: .leading)
+      .background(Color.white)
+      .offset(x: viewState.isEdit ? -64 : .zero)
+      .animation(.default, value: viewState.isEdit)
+      .gesture(
+        DragGesture()
+          .onChanged { value in
+            guard let direction = value.translation.width.convert(distance: distance) else { return }
+            switch direction {
+            case .hiding: swipeAction(.none)
+            case .showing: swipeAction(viewState.item.id)
+            }
+          })
     }
+    .frame(maxWidth: .infinity)
   }
 }
 
 // MARK: - HomePage.RecentMessageComponent.ViewState
 
 extension HomePage.RecentMessageComponent {
+
+  // MARK: Internal
+
   struct ViewState: Equatable {
     let item: Chat.Message.Item
     let userList: [Authentication.Me.Response]
+    let chatPartnerId: String
+    let isEdit: Bool
+  }
+
+  // MARK: Fileprivate
+
+  fileprivate enum Direction: Equatable {
+    case showing
+    case hiding
+  }
+}
+
+extension CGFloat {
+  fileprivate func convert(distance: CGFloat) -> HomePage.RecentMessageComponent.Direction? {
+    if self > distance { .hiding }
+    else if self < -distance { .showing }
+    else { .none }
   }
 }
 

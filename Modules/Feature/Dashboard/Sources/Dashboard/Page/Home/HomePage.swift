@@ -7,6 +7,8 @@ import SwiftUI
 
 struct HomePage {
   @Bindable var store: StoreOf<HomeReducer>
+
+  @State private var isEditingFocus: String? = .none
 }
 
 extension HomePage {
@@ -47,15 +49,20 @@ extension HomePage: View {
 
           LazyVStack(spacing: 8) {
             ForEach(store.recentMessageList.sorted(by: { $0.date > $1.date })) { item in
-              RecentMessageComponent(
-                viewState: .init(item: item, userList: store.userList),
-                tapAction: {
-                  if let user = store.userList.first(where: { $0.uid == item.fromId || $0.uid == item.toId }) {
-                    store.send(.routeToChat(user))
-                  }
-                })
+              if let user = store.userList.first(where: { $0.uid == item.fromId || $0.uid == item.toId }) {
+                RecentMessageComponent(
+                  viewState: .init(
+                    item: item,
+                    userList: store.userList,
+                    chatPartnerId: user.uid,
+                    isEdit: isEditingFocus == item.id),
+                  tapAction: { store.send(.routeToChat(user)) },
+                  swipeAction: { self.isEditingFocus = $0 },
+                  deleteAction: { store.send(.onTapDeleteMessage($0)) })
+              }
             }
           }
+          .animation(.default, value: store.recentMessageList)
           .padding(.top, 32)
         }
       }

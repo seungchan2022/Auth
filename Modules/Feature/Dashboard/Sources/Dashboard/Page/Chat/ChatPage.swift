@@ -44,13 +44,13 @@ extension ChatPage: View {
                   viewState: .init(
                     item: item,
                     user: store.userInfo))
-                .onAppear {
-                  if item.id == store.itemList.last?.id {
-                    withAnimation {
-                      proxy.scrollTo(lastMessage, anchor: .bottom)
+                  .onAppear {
+                    if item.id == store.itemList.last?.id {
+                      withAnimation {
+                        proxy.scrollTo(lastMessage, anchor: .bottom)
+                      }
                     }
                   }
-                }
               }
             }
             .padding(.top, 32)

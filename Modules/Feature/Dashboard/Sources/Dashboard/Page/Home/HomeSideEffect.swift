@@ -48,6 +48,18 @@ extension HomeSideEffect {
     }
   }
 
+  var deleteMessage: (String) -> Effect<HomeReducer.Action> {
+    { chatPartnerId in
+      .publisher {
+        useCase.chatUseCase
+          .deleteMessage(chatPartnerId)
+          .receive(on: main)
+          .mapToResult()
+          .map(HomeReducer.Action.fetchDeleteMessage)
+      }
+    }
+  }
+
   var routeToMe: () -> Void {
     {
       navigator.next(
