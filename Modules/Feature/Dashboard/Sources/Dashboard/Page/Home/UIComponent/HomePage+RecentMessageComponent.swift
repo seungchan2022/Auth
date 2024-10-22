@@ -120,6 +120,23 @@ extension HomePage.RecentMessageComponent: View {
             }
           })
     }
+    .contextMenu {
+      Button(role: .cancel, action: { }) {
+        HStack {
+          Text("취소")
+
+          Image(systemName: "xmark")
+        }
+      }
+
+      Button(role: .destructive, action: { deleteAction(viewState.chatPartnerId) }) {
+        HStack {
+          Text("삭제")
+
+          Image(systemName: "trash")
+        }
+      }
+    }
     .frame(maxWidth: .infinity)
   }
 }
