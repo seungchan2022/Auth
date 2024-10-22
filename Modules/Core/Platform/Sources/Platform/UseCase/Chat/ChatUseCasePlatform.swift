@@ -297,9 +297,21 @@ extension ChatUseCasePlatform: ChatUseCase {
           .collection("recentMessages")
           .document(chatPartnerId)
 
+        let chatPartnerRef = Firestore.firestore()
+          .collection("messages")
+          .document(me.uid)
+          .collection(chatPartnerId)
+
         Task {
           do {
+            // 최근 메시지 삭제
             try await recentMessageRef.delete()
+
+            // 컬렉션의 모든 문서를 순차적으로 삭제
+            let snapshot = try await chatPartnerRef.getDocuments()
+            for document in snapshot.documents {
+              try await document.reference.delete()
+            }
             return promise(.success(chatPartnerId))
           } catch {
             return promise(.failure(.other(error)))
