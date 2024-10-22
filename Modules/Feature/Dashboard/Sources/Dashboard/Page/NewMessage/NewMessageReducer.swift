@@ -22,6 +22,8 @@ struct NewMessageReducer {
   struct State: Identifiable {
     let id: UUID
 
+    var searchText = ""
+
     var userList: [Authentication.Me.Response] = []
 
     var fetchUserList: FetchState.Data<[Authentication.Me.Response]?> = .init(isLoading: false, value: .none)

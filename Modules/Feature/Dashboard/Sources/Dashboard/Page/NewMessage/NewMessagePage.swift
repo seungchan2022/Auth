@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import DesignSystem
+import Domain
 import SwiftUI
 
 // MARK: - NewMessagePage
@@ -7,10 +8,18 @@ import SwiftUI
 struct NewMessagePage {
   @Bindable var store: StoreOf<NewMessageReducer>
 
-  @State private var searchText = ""
 }
 
-extension NewMessagePage { }
+extension NewMessagePage {
+  private var userList: [Authentication.Me.Response] {
+    guard !store.searchText.isEmpty else { return store.userList }
+
+    return store.userList.filter {
+      guard let userName = $0.userName else { return false }
+      return userName.lowercased().contains(store.searchText.lowercased())
+    }
+  }
+}
 
 // MARK: View
 
@@ -26,10 +35,12 @@ extension NewMessagePage: View {
         isShowDivider: true)
       {
         VStack(alignment: .leading, spacing: 32) {
-          TextField("To: ", text: $searchText)
+          TextField("To: ", text: $store.searchText)
             .frame(height: 48)
             .padding(.leading, 12)
             .background(.gray.opacity(0.3))
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
 
           Text("CONTACTS")
             .font(.callout)
@@ -39,7 +50,7 @@ extension NewMessagePage: View {
           Divider()
 
           LazyVStack(spacing: 8) {
-            ForEach(store.userList, id: \.uid) { user in
+            ForEach(userList, id: \.uid) { user in
               UserListComponent(
                 viewState: .init(user: user),
                 tapAction: { store.send(.routeToChat($0)) })
