@@ -32,8 +32,10 @@ extension MePage: View {
         barItem: .init(
           backAction: .init(
             image: Image(systemName: "chevron.left"),
-            action: { store.send(.routeToBack) })))
-      {
+            action: { store.send(.routeToBack) }),
+          moreActionList: [
+            .init(title: "프로필 이미지 삭제", action: { store.send(.onTapDeleteProfileImage) }),
+          ])) {
         VStack {
           ProfileImageComponent(
             viewState: .init(user: store.user),

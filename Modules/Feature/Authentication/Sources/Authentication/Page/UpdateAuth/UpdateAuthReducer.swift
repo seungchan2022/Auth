@@ -45,6 +45,8 @@ struct UpdateAuthReducer {
     var fetchSignOut: FetchState.Data<Bool> = .init(isLoading: false, value: false)
     var fetchUpdateUserName: FetchState.Data<Bool> = .init(isLoading: false, value: false)
     var fetchDeleteUser: FetchState.Data<Bool> = .init(isLoading: false, value: false)
+    var fetchDeleteUserInfo: FetchState.Data<Bool?> = .init(isLoading: false, value: .none)
+    var fetchDeleteUserProfileImage: FetchState.Data<Bool?> = .init(isLoading: false, value: .none)
 
   }
 
@@ -58,10 +60,15 @@ struct UpdateAuthReducer {
     case onTapUpdateUserName
     case onTapDeleteUser
 
+    case deleteUserInfo
+    case deleteUserProfileImage
+
     case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
     case fetchSignOut(Result<Bool, CompositeErrorRepository>)
     case fetchUpdateUserName(Result<Bool, CompositeErrorRepository>)
     case fetchDeleteUser(Result<Bool, CompositeErrorRepository>)
+    case fetchDeleteUserInfo(Result<Bool, CompositeErrorRepository>)
+    case fetchDeleteUserProfileImage(Result<Bool, CompositeErrorRepository>)
 
     case routeToUpdatePassword
     case routeToBack
@@ -75,6 +82,8 @@ struct UpdateAuthReducer {
     case requestSignOut
     case requestUpdateUserName
     case requestDeleteUser
+    case requestDeleteUserInfo
+    case requestDeleteUserProfileImage
   }
 
   var body: some Reducer<State, Action> {
@@ -106,9 +115,22 @@ struct UpdateAuthReducer {
           .cancellable(pageID: pageID, id: CancelID.requestUpdateUserName, cancelInFlight: true)
 
       case .onTapDeleteUser:
+        state.fetchDeleteUser.isLoading = true
         return sideEffect
           .deleteUser(state.passwordText)
           .cancellable(pageID: pageID, id: CancelID.requestDeleteUser, cancelInFlight: true)
+
+      case .deleteUserInfo:
+        state.fetchDeleteUserInfo.isLoading = true
+        return sideEffect
+          .deleteUserInfo()
+          .cancellable(pageID: pageID, id: CancelID.requestDeleteUserInfo, cancelInFlight: true)
+
+      case .deleteUserProfileImage:
+        state.fetchDeleteUserProfileImage.isLoading = true
+        return sideEffect
+          .deleteUserProfileImage()
+          .cancellable(pageID: pageID, id: CancelID.requestDeleteUserProfileImage, cancelInFlight: true)
 
       case .fetchUser(let result):
         state.fetchUser.isLoading = false
@@ -148,6 +170,27 @@ struct UpdateAuthReducer {
         case .success:
           sideEffect.useCase.toastViewModel.send(message: "계정이 탈퇴되었습니다.")
           sideEffect.routeToSignIn()
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchDeleteUserInfo(let result):
+        state.fetchDeleteUserInfo.isLoading = false
+        switch result {
+        case .success:
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchDeleteUserProfileImage(let result):
+        print(result)
+        state.fetchDeleteUserProfileImage.isLoading = false
+        switch result {
+        case .success:
           return .none
 
         case .failure(let error):

@@ -71,6 +71,32 @@ extension UpdateAuthSideEffect {
     }
   }
 
+  var deleteUserInfo: () -> Effect<UpdateAuthReducer.Action> {
+    {
+      .publisher {
+        useCase.authenticationUseCase
+          .deleteUserInfo()
+          .map { _ in true }
+          .receive(on: main)
+          .mapToResult()
+          .map(UpdateAuthReducer.Action.fetchDeleteUserInfo)
+      }
+    }
+  }
+
+  var deleteUserProfileImage: () -> Effect<UpdateAuthReducer.Action> {
+    {
+      .publisher {
+        useCase.authenticationUseCase
+          .deleteUserProfileImage()
+          .map { _ in true }
+          .receive(on: main)
+          .mapToResult()
+          .map(UpdateAuthReducer.Action.fetchDeleteUserProfileImage)
+      }
+    }
+  }
+
   var routeToSignIn: () -> Void {
     {
       navigator.replace(

@@ -283,6 +283,67 @@ extension AuthenticationUseCasePlatform: AuthenticationUseCase {
       .eraseToAnyPublisher()
     }
   }
+
+  public var deleteUserInfo: () -> AnyPublisher<Void, CompositeErrorRepository> {
+    {
+      Future<Void, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else { return }
+
+        let userRef = Firestore.firestore()
+          .collection("users")
+          .document(me.uid)
+
+        Task {
+          do {
+            try await userRef.delete()
+            return promise(.success(Void()))
+          } catch {
+            return promise(.failure(.other(error)))
+          }
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
+  public var deleteUserProfileImage: () -> AnyPublisher<Void, CompositeErrorRepository> {
+    {
+      Future<Void, CompositeErrorRepository> { promise in
+        guard let me = Auth.auth().currentUser else {
+          return promise(.failure(.invalidTypeCasting))
+        }
+
+        let storageRef = Storage.storage().reference()
+
+        let profileImageRef = storageRef.child("profile_images/\(me.uid).jpg")
+
+        let userRef = Firestore.firestore()
+          .collection("users")
+          .document(me.uid)
+
+        Task {
+          do {
+            try await profileImageRef.delete()
+            try await userRef.updateData(["photoURL": ""])
+
+            let changeRequest = me.createProfileChangeRequest()
+            changeRequest.photoURL = nil
+
+            try await changeRequest.commitChanges()
+
+            return promise(.success(Void()))
+          } catch StorageError.objectNotFound {
+            return promise(.success(Void()))
+
+          } catch {
+            return promise(.failure(.other(error)))
+          }
+        }
+      }
+      .eraseToAnyPublisher()
+    }
+  }
+
 }
 
 extension User {

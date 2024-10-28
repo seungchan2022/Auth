@@ -31,6 +31,7 @@ struct MeReducer {
     var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
 
     var fetchUpdateProfileImage: FetchState.Data<Bool?> = .init(isLoading: false, value: .none)
+    var fetchDeleteProfileImage: FetchState.Data<Bool?> = .init(isLoading: false, value: .none)
 
     init(id: UUID = UUID()) {
       self.id = id
@@ -44,9 +45,12 @@ struct MeReducer {
     case getUser
     case updateProfileImage(Data)
 
+    case onTapDeleteProfileImage
+
     case fetchUser(Result<Authentication.Me.Response?, CompositeErrorRepository>)
 
     case fetchUpdateProfileImage(Result<Bool?, CompositeErrorRepository>)
+    case fetchDeleteProfileImage(Result<Bool?, CompositeErrorRepository>)
 
     case routeToBack
     case routeToUpdateAuth
@@ -59,6 +63,7 @@ struct MeReducer {
     case requestUser
     case requestSignOut
     case requestUpdateProfileImage
+    case requestDeleteProfileImage
   }
 
   var body: some Reducer<State, Action> {
@@ -84,6 +89,12 @@ struct MeReducer {
           .updateProfileImage(imageData)
           .cancellable(pageID: pageID, id: CancelID.requestUpdateProfileImage, cancelInFlight: true)
 
+      case .onTapDeleteProfileImage:
+        state.fetchDeleteProfileImage.isLoading = true
+        return sideEffect
+          .deleteProfileImage()
+          .cancellable(pageID: pageID, id: CancelID.requestDeleteProfileImage, cancelInFlight: true)
+
       case .fetchUser(let result):
         state.fetchUser.isLoading = false
         switch result {
@@ -101,6 +112,18 @@ struct MeReducer {
         case .success:
           sideEffect.routeToBack()
           sideEffect.useCase.toastViewModel.send(message: "프로필 이미지 변경")
+          return .none
+
+        case .failure(let error):
+          return .run { await $0(.throwError(error)) }
+        }
+
+      case .fetchDeleteProfileImage(let result):
+        state.fetchDeleteProfileImage.isLoading = false
+        switch result {
+        case .success:
+          sideEffect.routeToBack()
+          sideEffect.useCase.toastViewModel.send(message: "프로필 이미지를 삭제하였습니다.")
           return .none
 
         case .failure(let error):

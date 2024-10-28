@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import DesignSystem
+import FirebaseAuth
 import SwiftUI
 
 // MARK: - UpdateAuthPage
@@ -15,6 +16,10 @@ extension UpdateAuthPage {
     guard let userName = store.user.userName
     else { return String(store.user.email?.split(separator: "@").first ?? "") }
     return userName.isEmpty ? String(store.user.email?.split(separator: "@").first ?? "") : userName
+  }
+
+  private var id: String {
+    Auth.auth().currentUser?.uid ?? ""
   }
 }
 
@@ -90,7 +95,11 @@ extension UpdateAuthPage: View {
         .autocorrectionDisabled(true)
         .textInputAutocapitalization(.never)
 
-      Button(action: { store.send(.onTapDeleteUser) }) {
+      Button(action: {
+        store.send(.onTapDeleteUser)
+        store.send(.deleteUserInfo)
+        store.send(.deleteUserProfileImage)
+      }) {
         Text("확인")
       }
 

@@ -23,4 +23,7 @@ public protocol AuthenticationUseCase {
   var resetPassword: (String) -> AnyPublisher<Void, CompositeErrorRepository> { get }
 
   var deleteUser: (String) -> AnyPublisher<Void, CompositeErrorRepository> { get }
+
+  var deleteUserInfo: () -> AnyPublisher<Void, CompositeErrorRepository> { get }
+  var deleteUserProfileImage: () -> AnyPublisher<Void, CompositeErrorRepository> { get }
 }

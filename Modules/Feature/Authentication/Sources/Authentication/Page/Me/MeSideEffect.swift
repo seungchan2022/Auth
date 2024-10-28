@@ -49,6 +49,19 @@ extension MeSideEffect {
     }
   }
 
+  var deleteProfileImage: () -> Effect<MeReducer.Action> {
+    {
+      .publisher {
+        useCase.authenticationUseCase
+          .deleteUserProfileImage()
+          .map { _ in true }
+          .receive(on: main)
+          .mapToResult()
+          .map(MeReducer.Action.fetchDeleteProfileImage)
+      }
+    }
+  }
+
   var routeToBack: () -> Void {
     {
       navigator.back(isAnimated: true)

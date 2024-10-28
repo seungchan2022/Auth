@@ -24,7 +24,8 @@ extension AppContainer {
   class func build() -> AppContainer {
     let sideEffect = AppSideEffect(
       toastViewModel: ToastViewModel(),
-      authenticationUseCase: AuthenticationUseCasePlatform())
+      authenticationUseCase: AuthenticationUseCasePlatform(),
+      chatUseCase: ChatUseCasePlatform())
 
     return .init(
       dependency: sideEffect,
