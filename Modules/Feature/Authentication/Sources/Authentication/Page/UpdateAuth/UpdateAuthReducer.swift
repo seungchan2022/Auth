@@ -187,7 +187,6 @@ struct UpdateAuthReducer {
         }
 
       case .fetchDeleteUserProfileImage(let result):
-        print(result)
         state.fetchDeleteUserProfileImage.isLoading = false
         switch result {
         case .success:

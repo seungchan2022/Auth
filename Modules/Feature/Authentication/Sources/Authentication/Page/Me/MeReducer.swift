@@ -26,6 +26,7 @@ struct MeReducer {
 
     var selectedImage: PhotosPickerItem?
     var isShowPhotsPicker = false
+    var isShowSheet = false
 
     var user: Authentication.Me.Response = .init(uid: "", userName: "", email: "", photoURL: "")
     var fetchUser: FetchState.Data<Authentication.Me.Response?> = .init(isLoading: false, value: .none)
