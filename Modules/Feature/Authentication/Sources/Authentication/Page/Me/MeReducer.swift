@@ -113,7 +113,6 @@ struct MeReducer {
         state.fetchUpdateProfileImage.isLoading = false
         switch result {
         case .success:
-          sideEffect.routeToBack()
           sideEffect.useCase.toastViewModel.send(message: "프로필 이미지 변경")
           return .none
 
@@ -125,7 +124,6 @@ struct MeReducer {
         state.fetchDeleteProfileImage.isLoading = false
         switch result {
         case .success:
-          sideEffect.routeToBack()
           sideEffect.useCase.toastViewModel.send(message: "프로필 이미지를 삭제하였습니다.")
           return .none
 

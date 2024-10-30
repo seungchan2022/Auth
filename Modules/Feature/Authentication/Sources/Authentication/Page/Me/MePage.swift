@@ -82,6 +82,14 @@ extension MePage: View {
       CarmeraComponent(store: store)
         .ignoresSafeArea()
     }
+    .onChange(of: store.fetchUpdateProfileImage.isLoading) { _, new in
+      guard !new else { return }
+      store.send(.getUser)
+    }
+    .onChange(of: store.fetchDeleteProfileImage.isLoading) { _, new in
+      guard !new else { return }
+      store.send(.getUser)
+    }
     .toolbar(.hidden, for: .navigationBar)
     .setRequestFlightView(isLoading: isLoading)
     .onAppear {

@@ -36,11 +36,11 @@ extension MePage.ProfileImageComponent: View {
             .overlay(alignment: .bottomTrailing) {
               Circle()
                 .fill(.white)
-                .frame(width: 40, height: 40)
+                .frame(width: 30, height: 30)
 
               Image(systemName: "camera.circle.fill")
                 .resizable()
-                .frame(width: 40, height: 40)
+                .frame(width: 30, height: 30)
                 .foregroundStyle(.gray)
             }
         }
@@ -50,11 +50,11 @@ extension MePage.ProfileImageComponent: View {
         .overlay(alignment: .bottomTrailing) {
           Circle()
             .fill(.white)
-            .frame(width: 40, height: 40)
+            .frame(width: 30, height: 30)
 
           Image(systemName: "camera.circle.fill")
             .resizable()
-            .frame(width: 40, height: 40)
+            .frame(width: 30, height: 30)
             .foregroundStyle(.gray)
         }
 
