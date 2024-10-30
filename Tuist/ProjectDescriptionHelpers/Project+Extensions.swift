@@ -36,8 +36,8 @@ extension InfoPlist {
             .string("com.googleusercontent.apps.299664057012-m93hc46hft1m50dir5168ospl50jvg30"),
           ]),
         ]),
-
       ]),
+      "NSCameraUsageDescription": .string("프로필 이미지를 설정하기 위해 카메라 접근이 필요합니다."),
     ]
   }
 }

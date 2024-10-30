@@ -58,7 +58,10 @@ extension MePage: View {
           store.isShowSheet = false
           store.send(.onTapDeleteProfileImage)
         },
-        takePhotoTapAction: { },
+        takePhotoTapAction: {
+          store.isShowSheet = false
+          store.isShowCarmera = true
+        },
         selectTapAction: {
           store.isShowSheet = false
           store.isShowPhotsPicker = true
@@ -74,6 +77,10 @@ extension MePage: View {
 
         store.send(.updateProfileImage(imageData))
       }
+    }
+    .fullScreenCover(isPresented: $store.isShowCarmera) {
+      CarmeraComponent(store: store)
+        .ignoresSafeArea()
     }
     .toolbar(.hidden, for: .navigationBar)
     .setRequestFlightView(isLoading: isLoading)
