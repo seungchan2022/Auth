@@ -108,7 +108,9 @@ extension ChatPage: View {
         .padding(.horizontal, 8)
       }
       .padding(.horizontal, 12)
+      .padding(.bottom, 12)
     }
+    .scrollDismissesKeyboard(.interactively)
     .toolbar(.hidden, for: .navigationBar)
     .onAppear {
       store.send(.getUserInfo(store.userInfo))

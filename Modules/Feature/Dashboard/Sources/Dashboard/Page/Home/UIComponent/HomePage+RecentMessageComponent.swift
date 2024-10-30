@@ -102,12 +102,12 @@ extension HomePage.RecentMessageComponent: View {
         Divider()
           .padding(.leading, 80)
       }
+      .background(Color.white)
       .onTapGesture {
         swipeAction(.none)
         tapAction()
       }
       .frame(minWidth: .zero, maxWidth: .infinity, alignment: .leading)
-      .background(Color.white)
       .offset(x: viewState.isEdit ? -64 : .zero)
       .animation(.default, value: viewState.isEdit)
       .gesture(

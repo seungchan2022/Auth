@@ -58,6 +58,24 @@ extension DesignSystemNavigationBar: View {
                 }
                 .padding(.horizontal, 16)
             }
+
+            if let imageURL = backAction.imageURL {
+              RemoteImage(url: imageURL) {
+                Image(systemName: "person.circle.fill")
+                  .imageScale(.large)
+                  .foregroundStyle(.black)
+                  .background {
+                    Circle()
+                      .fill(.clear)
+                      .frame(width: 50, height: 50)
+                  }
+                  .padding(.horizontal, 16)
+              }
+              .scaledToFill()
+              .frame(width: 30, height: 30)
+              .padding(.horizontal, 16)
+              .clipShape(Circle())
+            }
           }
         } else {
           EmptyView()
@@ -111,15 +129,18 @@ extension DesignSystemNavigationBar {
   public struct BackAction {
     let title: String?
     let image: Image?
+    let imageURL: String?
     let action: () -> Void
 
     public init(
       title: String? = .none,
       image: Image? = .none,
+      imageURL: String? = .none,
       action: @escaping () -> Void)
     {
       self.title = title
       self.image = image
+      self.imageURL = imageURL
       self.action = action
     }
   }

@@ -25,7 +25,7 @@ extension HomePage: View {
       DesignSystemNavigation(
         barItem: .init(
           backAction: .init(
-            image: Image(systemName: "person.circle.fill"),
+            imageURL: profileImageURL,
             action: { store.send(.routeToMe) }),
           moreActionList: [
             .init(
